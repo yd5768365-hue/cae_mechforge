@@ -1,6 +1,6 @@
 # MechForge AI
 
-真正懂机械、敢说真话、能真算
+真正懂机械、敢说真话、能真算，“机械系苦逼在校生，用代码修补现实的缝隙，顺便造了个 MechForge AI 来骗自己‘我能拯救世界’（其实只是拯救我的 GPA）🔧🤖
 
 <p align="center">
   <a href="https://github.com/yd5768365-hue/mechforge/releases">
