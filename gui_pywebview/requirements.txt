@@ -1,0 +1,15 @@
+# MechForge AI PyWebView 桌面应用依赖
+
+# Web 框架
+webview>=4.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# 数据验证
+pydantic>=2.0.0
+
+# HTTP 客户端
+requests>=2.28.0
+
+# 打包工具（可选）
+pyinstaller>=6.0.0

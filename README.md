@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/yd5768365-hue/mechforge/releases">
-    <img src="https://img.shields.io/badge/version-0.4.0-blue.svg" alt="Version"/>
+    <img src="https://img.shields.io/badge/version-0.4.1-blue.svg" alt="Version"/>
   </a>
   <a href="https://github.com/yd5768365-hue/mechforge/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"/>
@@ -67,6 +67,13 @@
 - **FastAPI**: 高性能异步后端
 - **WebSocket**: 实时双向通信
 - **安全中间件**: 速率限制、IP 过滤、输入验证、安全头
+
+### 🖥️ GUI 桌面应用
+- **PySide6**: 原生桌面应用
+- **科幻主题**: 深空蓝背景 + 霓虹青强调色
+- **Glassmorphism**: Modern Dark 设计语言
+- **单文件打包**: MechForge.exe (~71MB)
+- **完整功能**: AI 对话 + 知识库 RAG + 模型管理
 
 ### 🔌 MCP 协议
 - **内置工具**: 悬臂梁计算、材料查询、弹簧设计
@@ -136,8 +143,11 @@ mechforge-model list
 # 选择默认模型
 mechforge-model select
 
-# 启动 AI 对话
+# 启动 AI 对话 (终端)
 mechforge
+
+# 启动 GUI 桌面应用
+mechforge-gui
 
 # 启动知识库
 mechforge-k
@@ -157,6 +167,7 @@ mechforge-web
 | 命令 | 说明 | 示例 |
 |------|------|------|
 | `mechforge` | 启动 AI 对话 | 直接运行进入交互模式 |
+| `mechforge-gui` | 启动 GUI 桌面应用 | 图形化界面 |
 | `mechforge-k` | 启动知识库 | `mechforge-k search "关键词"` |
 | `mechforge-work` | 启动 CAE 工作台 | `mechforge-work demo` |
 | `mechforge-work --tui` | 启动 CAE TUI 界面 | 交互式终端界面 |
@@ -428,7 +439,7 @@ $ mechforge-work
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      MechForge AI v0.4.0                    │
+│                      MechForge AI v0.4.1                    │
 ├──────────────┬──────────────┬──────────────┬────────────────┤
 │  AI 对话     │  知识库      │  CAE 工作台  │  Web 界面      │
 ├──────────────┼──────────────┼──────────────┼────────────────┤
@@ -436,6 +447,8 @@ $ mechforge-work
 │ MCP Tools    │ BM25/Rerank  │ CalculiX     │ WebSocket      │
 │ Streaming    │ ChromaDB     │ PyVista      │ Security       │
 ├──────────────┴──────────────┴──────────────┴────────────────┤
+│              GUI 桌面应用 (PySide6 + 科幻主题)               │
+├─────────────────────────────────────────────────────────────┤
 │              Core (Config / MCP / Local Model Manager)       │
 ├─────────────────────────────────────────────────────────────┤
 │  🦙 Ollama  │  📦 GGUF HTTP  │  🔧 MCP Servers               │
@@ -449,6 +462,9 @@ $ mechforge-work
 ```bash
 # 基础功能 (AI Chat)
 pip install mechforge-ai
+
+# GUI 桌面应用 (+PySide6)
+pip install mechforge-ai[gui]
 
 # CAE 功能 (+Gmsh +CalculiX +PyVista)
 pip install mechforge-ai[work]
@@ -565,6 +581,12 @@ mechforge_ai/
 ├── mechforge_theme/           # 主题组件
 │   ├── colors.py              # 颜色定义
 │   └── components.py          # UI 组件
+├── mechforge_gui_ai/          # GUI 桌面应用 (PySide6)
+│   ├── app.py                 # 应用入口
+│   ├── main_window.py         # 主窗口
+│   ├── theme.py               # 终端风格主题
+│   ├── dialogs.py             # 配置对话框
+│   └── build_gui.py           # 打包脚本
 ├── docs/                      # 文档
 ├── tests/                     # 测试
 ├── examples/                  # 示例
@@ -614,6 +636,39 @@ mechforge_ai/
 ---
 
 ## 📝 更新日志
+
+### v0.4.1 (2026-03-06)
+
+#### ✨ 新特性
+- **GUI 桌面应用**
+  - 科幻控制台风格主题（深空蓝背景 + 霓虹青强调色）
+  - Modern Dark Glassmorphism 设计语言
+  - 动态网格线动画效果
+  - 全新字体系统（Orbitron/Rajdhani/Share Tech Mono）
+  - 单文件可执行程序（MechForge.exe ~71MB）
+- **知识库路径统一**
+  - 所有模式使用相同的路径解析逻辑
+  - 支持环境变量覆盖
+  - GUI 中可选择自定义知识库文件夹
+- **RAG 功能完整支持**
+  - GUI 中集成 RAG 按钮
+  - 空文件夹自动创建示例文档
+  - 路径保存到配置文件
+- **MCP 服务器支持**
+  - Chrome DevTools MCP 集成
+  - 浏览器自动化控制
+
+#### 🔧 改进
+- 优化 GUI 欢迎消息显示（QTextEdit 替代 QLabel）
+- 移除聊天区域的系统消息，保持界面整洁
+- RAG 引擎延迟加载，提升启动速度
+- 抑制 HuggingFace 警告信息
+
+#### 🐛 修复
+- 修复 RAG 引擎启动延迟问题
+- 修复 HuggingFace 警告信息显示
+- 修复知识库路径不一致问题
+- 修复 GUI 字体显示问题
 
 ### v0.4.0 (2026-03-05)
 

@@ -2,6 +2,57 @@
 
 ## 2026年3月8日
 
+### 重构：PySide6 桌面应用迁移至 PyWebView
+- **实现者**：Qwen
+- **问题描述**：PySide6 + QWebEngineView 桌面应用存在以下问题：
+  1. 安装包体积大（~200MB）
+  2. 依赖复杂，需要 Qt 环境
+  3. Intel 核显兼容性问题，需要禁用 GPU 加速
+  4. 启动速度较慢，内存占用高
+- **解决方法**：
+  1. 创建新文件夹 `gui_pywebview` 存放 PyWebView 版本
+  2. 复制相关文件：server.py, index.html, styles.css, app.js, core/, services/, dj-whale.png
+  3. 使用 PyWebView 重构桌面应用入口文件 `desktop_app.py`
+  4. 创建启动脚本 `start.bat`, `start.sh`
+  5. 创建打包脚本 `build.py`, `build.bat`
+  6. 删除旧的 PySide6 相关文件
+  7. 更新 `gui/` 文件夹中的启动脚本，重定向到新版本
+- **新增文件**：
+  - `gui_pywebview/desktop_app.py` - 主入口文件
+  - `gui_pywebview/start.bat`, `start.sh` - 启动脚本
+  - `gui_pywebview/build.py`, `build.bat` - 打包脚本
+  - `gui_pywebview/requirements.txt` - 依赖列表
+  - `gui_pywebview/README.md` - 文档
+- **删除文件**：
+  - `gui/desktop_pyside.py` - PySide6 版本
+  - `gui/build_pyside.*` - PySide6 构建脚本
+  - `gui/desktop_app.py`, `desktop_app_full.py` - 旧版桌面应用
+  - `gui/build_exe.*`, `build_full.py`, `build_spec.py`, `build.py` - 旧版构建脚本
+  - `gui/run_gui.py`, `start_desktop.bat` - 旧版启动脚本
+- **优势对比**：
+  | 特性 | PyWebView | PySide6 |
+  |------|-----------|---------|
+  | 安装包大小 | ~50MB | ~200MB |
+  | 依赖复杂度 | 低 | 高 |
+  | 启动速度 | 快 | 中等 |
+  | 内存占用 | 低 | 高 |
+  | GPU 兼容性 | 好 | 需要配置 |
+- **使用方法**：
+  ```bash
+  # 安装依赖
+  pip install pywebview
+
+  # 运行应用
+  cd gui_pywebview
+  python desktop_app.py
+
+  # 或使用启动脚本
+  start.bat  # Windows
+  bash start.sh  # Linux/macOS
+  ```
+
+---
+
 ### 修复：Intel 核显与 QWebEngineView 兼容性闪烁问题
 - **发现者**：用户反馈
 - **问题描述**：在 Intel UHD 核显环境下，`mechforge-gui` 桌面应用窗口闪烁严重
