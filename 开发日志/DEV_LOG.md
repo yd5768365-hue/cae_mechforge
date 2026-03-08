@@ -1,9 +1,34 @@
-# MechForge AI 开发日志
+
+
+## 2026年3月8日
+
+### 修复：Intel 核显与 QWebEngineView 兼容性闪烁问题
+- **发现者**：用户反馈
+- **问题描述**：在 Intel UHD 核显环境下，`mechforge-gui` 桌面应用窗口闪烁严重
+- **问题原因**：
+  1. QWebEngineView 基于 Chromium，需要 GPU 加速渲染
+  2. Intel 核显 OpenGL 支持有限，日志显示 `Failed to create GLES3 context`
+  3. Windows DWM 合成时窗口失焦触发重绘，与 GPU 渲染冲突
+- **解决方法**：
+  1. **环境变量方式**（在 Qt 导入前设置）：
+     - `QT_OPENGL=software` - 使用软件 OpenGL 渲染
+     - `QT_ANGLE_PLATFORM=warp` - Windows 使用 WARP 软件渲染器
+     - `QT_WEBENGINE_CHROMIUM_FLAGS` - 禁用 GPU、GPU 光栅化、2D 画布加速、GLES3、GPU 合成
+  2. **Qt 属性设置**（在 QApplication 创建前）：
+     - `QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)`
+  3. **WebEngineSettings 配置**：
+     - `AcceleratedVideoDecodeEnabled = False`
+     - `WebGLEnabled = False`（如果支持）
+- **修改文件**：`gui/desktop_pyside.py`
+- **预期效果**：消除 GPU 依赖，解决闪烁问题，但可能牺牲部分性能（如 3D 内容渲染变慢）
+
+---
+
 
 ## 2026年3月7日
 
 ### 改进：统一Python环境配置
-- **实现者**：Qwen Code
+- **实现者**：夏
 - **问题描述**：项目缺乏统一的Python环境配置，不同开发者可能使用不同Python版本和依赖，导致兼容性问题
 - **解决方法**：
   1. **指定Python版本** (`.python-version`): 指定Python 3.12为推荐版本
@@ -19,7 +44,7 @@
 ---
 
 ### 新增功能：AI自我反思与提升技能 (Self-Reflection Skill)
-- **实现者**：Qwen Code
+- **实现者**：夏
 - **功能描述**：为AI设计了一个完整的自我反思与提升系统，让AI能够从交互中学习、记录经验、持续优化自身表现
 - **核心组件**：
   1. **交互日志记录器 (ReflectionLogger)**：

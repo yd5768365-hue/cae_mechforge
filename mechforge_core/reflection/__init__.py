@@ -18,7 +18,14 @@ Example:
     >>> reflection = engine.reflect_on_task(log_id)
 """
 
-from .models import InteractionLog, ReflectionEntry, Lesson, ErrorType
+from .models import (
+    InteractionLog, 
+    ReflectionEntry, 
+    Lesson, 
+    ErrorType,
+    ReflectionConfig,
+    TaskResult
+)
 from .logger import ReflectionLogger
 from .engine import ReflectionEngine
 from .experience_db import ExperienceDB
@@ -26,9 +33,11 @@ from .reporter import ReflectionReporter
 
 __all__ = [
     "InteractionLog",
-    "ReflectionEntry", 
+    "ReflectionEntry",
     "Lesson",
     "ErrorType",
+    "ReflectionConfig",
+    "TaskResult",
     "ReflectionLogger",
     "ReflectionEngine",
     "ExperienceDB",
