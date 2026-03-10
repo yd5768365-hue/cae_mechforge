@@ -1,283 +1,250 @@
 /**
- * @fileoverview TestFramework - 轻量级测试框架
- * @description 无需外部依赖的单元测试框架
- * @module TestFramework
- * @version 1.0.0
+ * TestFramework - 轻量级测试框架
+ * 提供类似 Jest 的测试 API
  */
 
 (function () {
   'use strict';
 
   // ==================== 状态 ====================
-  const state = {
-    currentSuite: null,
-    tests: [],
-    passed: 0,
-    failed: 0,
-    skipped: 0,
-    errors: []
-  };
+  const suites = [];
+  let currentSuite = null;
+  let currentTest = null;
+  let beforeEachFn = null;
+  let afterEachFn = null;
 
-  // ==================== 断言库 ====================
+  // ==================== 测试定义 ====================
 
-  class AssertionError extends Error {
-    constructor(message, actual, expected) {
-      super(message);
-      this.name = 'AssertionError';
-      this.actual = actual;
-      this.expected = expected;
+  /**
+   * 定义测试套件
+   * @param {string} name - 套件名称
+   * @param {Function} fn - 套件函数
+   */
+  function describe(name, fn) {
+    const suite = {
+      name,
+      tests: [],
+      beforeEach: null,
+      afterEach: null
+    };
+
+    const prevSuite = currentSuite;
+    currentSuite = suite;
+    fn();
+    currentSuite = prevSuite;
+
+    suites.push(suite);
+  }
+
+  /**
+   * 定义测试用例
+   * @param {string} name - 测试名称
+   * @param {Function} fn - 测试函数
+   */
+  function it(name, fn) {
+    if (!currentSuite) {
+      throw new Error('it() must be called inside describe()');
+    }
+
+    currentSuite.tests.push({
+      name,
+      fn,
+      async: fn.constructor.name === 'AsyncFunction'
+    });
+  }
+
+  /**
+   * 跳过测试
+   * @param {string} name - 测试名称
+   * @param {Function} fn - 测试函数
+   */
+  function xit(name, fn) {
+    if (!currentSuite) return;
+    currentSuite.tests.push({
+      name,
+      fn,
+      skipped: true
+    });
+  }
+
+  /**
+   * 每个测试前执行
+   * @param {Function} fn - 函数
+   */
+  function beforeEach(fn) {
+    if (currentSuite) {
+      currentSuite.beforeEach = fn;
     }
   }
 
-  const Expect = {
-    toBe(actual) {
-      return {
-        _value: actual,
-
-        toBe(expected) {
-          if (this._value !== expected) {
-            throw new AssertionError(
-              `Expected ${JSON.stringify(expected)} but got ${JSON.stringify(this._value)}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toEqual(expected) {
-          if (!deepEqual(this._value, expected)) {
-            throw new AssertionError(
-              `Expected ${JSON.stringify(expected)} but got ${JSON.stringify(this._value)}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toBeNull() {
-          if (this._value !== null) {
-            throw new AssertionError(
-              `Expected null but got ${JSON.stringify(this._value)}`,
-              this._value,
-              null
-            );
-          }
-        },
-
-        toBeUndefined() {
-          if (this._value !== undefined) {
-            throw new AssertionError(
-              `Expected undefined but got ${JSON.stringify(this._value)}`,
-              this._value,
-              undefined
-            );
-          }
-        },
-
-        toBeTruthy() {
-          if (!this._value) {
-            throw new AssertionError(
-              `Expected truthy value but got ${JSON.stringify(this._value)}`,
-              this._value,
-              true
-            );
-          }
-        },
-
-        toBeFalsy() {
-          if (this._value) {
-            throw new AssertionError(
-              `Expected falsy value but got ${JSON.stringify(this._value)}`,
-              this._value,
-              false
-            );
-          }
-        },
-
-        toBeGreaterThan(expected) {
-          if (!(this._value > expected)) {
-            throw new AssertionError(
-              `Expected ${this._value} to be greater than ${expected}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toBeGreaterThanOrEqual(expected) {
-          if (!(this._value >= expected)) {
-            throw new AssertionError(
-              `Expected ${this._value} to be greater than or equal to ${expected}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toBeLessThan(expected) {
-          if (!(this._value < expected)) {
-            throw new AssertionError(
-              `Expected ${this._value} to be less than ${expected}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toBeLessThanOrEqual(expected) {
-          if (!(this._value <= expected)) {
-            throw new AssertionError(
-              `Expected ${this._value} to be less than or equal to ${expected}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toContain(expected) {
-          if (!this._value.includes(expected)) {
-            throw new AssertionError(
-              `Expected ${JSON.stringify(this._value)} to contain ${JSON.stringify(expected)}`,
-              this._value,
-              expected
-            );
-          }
-        },
-
-        toMatch(pattern) {
-          if (!pattern.test(this._value)) {
-            throw new AssertionError(
-              `Expected ${JSON.stringify(this._value)} to match ${pattern}`,
-              this._value,
-              pattern
-            );
-          }
-        },
-
-        toThrow(expectedMessage) {
-          if (typeof this._value !== 'function') {
-            throw new AssertionError(
-              `Expected function but got ${typeof this._value}`,
-              this._value,
-              'function'
-            );
-          }
-
-          let threw = false;
-          let thrownError = null;
-
-          try {
-            this._value();
-          } catch (error) {
-            threw = true;
-            thrownError = error;
-          }
-
-          if (!threw) {
-            throw new AssertionError(
-              'Expected function to throw but it did not',
-              null,
-              expectedMessage
-            );
-          }
-
-          if (expectedMessage && !thrownError.message.includes(expectedMessage)) {
-            throw new AssertionError(
-              `Expected error message to contain "${expectedMessage}" but got "${thrownError.message}"`,
-              thrownError.message,
-              expectedMessage
-            );
-          }
-        },
-
-        toBeInstanceOf(expectedClass) {
-          if (!(this._value instanceof expectedClass)) {
-            throw new AssertionError(
-              `Expected instance of ${expectedClass.name} but got ${this._value?.constructor?.name}`,
-              this._value,
-              expectedClass
-            );
-          }
-        },
-
-        toHaveLength(expected) {
-          if (this._value.length !== expected) {
-            throw new AssertionError(
-              `Expected length ${expected} but got ${this._value.length}`,
-              this._value.length,
-              expected
-            );
-          }
-        },
-
-        toBeDefined() {
-          if (this._value === undefined) {
-            throw new AssertionError(
-              'Expected value to be defined but got undefined',
-              undefined,
-              'defined'
-            );
-          }
-        },
-
-        toBeNaN() {
-          if (!Number.isNaN(this._value)) {
-            throw new AssertionError(
-              `Expected NaN but got ${this._value}`,
-              this._value,
-              NaN
-            );
-          }
-        },
-
-        not: {
-          _value: actual,
-
-          toBe(expected) {
-            if (this._value === expected) {
-              throw new AssertionError(
-                `Expected not to be ${JSON.stringify(expected)}`,
-                this._value,
-                expected
-              );
-            }
-          },
-
-          toEqual(expected) {
-            if (deepEqual(this._value, expected)) {
-              throw new AssertionError(
-                `Expected not to equal ${JSON.stringify(expected)}`,
-                this._value,
-                expected
-              );
-            }
-          },
-
-          toContain(expected) {
-            if (this._value.includes(expected)) {
-              throw new AssertionError(
-                `Expected not to contain ${JSON.stringify(expected)}`,
-                this._value,
-                expected
-              );
-            }
-          },
-
-          toMatch(pattern) {
-            if (pattern.test(this._value)) {
-              throw new AssertionError(
-                `Expected not to match ${pattern}`,
-                this._value,
-                pattern
-              );
-            }
-          }
-        }
-      };
+  /**
+   * 每个测试后执行
+   * @param {Function} fn - 函数
+   */
+  function afterEach(fn) {
+    if (currentSuite) {
+      currentSuite.afterEach = fn;
     }
-  };
+  }
 
-  // ==================== 深度比较 ====================
+  // ==================== 断言 ====================
+
+  class Expectation {
+    constructor(actual) {
+      this.actual = actual;
+      this.negated = false;
+    }
+
+    get not() {
+      this.negated = !this.negated;
+      return this;
+    }
+
+    toBe(expected) {
+      const pass = this.actual === expected;
+      this._assert(pass, `expected ${format(this.actual)} to be ${format(expected)}`);
+    }
+
+    toEqual(expected) {
+      const pass = deepEqual(this.actual, expected);
+      this._assert(pass, `expected ${format(this.actual)} to equal ${format(expected)}`);
+    }
+
+    toBeNull() {
+      const pass = this.actual === null;
+      this._assert(pass, `expected ${format(this.actual)} to be null`);
+    }
+
+    toBeUndefined() {
+      const pass = this.actual === undefined;
+      this._assert(pass, `expected ${format(this.actual)} to be undefined`);
+    }
+
+    toBeDefined() {
+      const pass = this.actual !== undefined;
+      this._assert(pass, `expected ${format(this.actual)} to be defined`);
+    }
+
+    toBeTruthy() {
+      const pass = !!this.actual;
+      this._assert(pass, `expected ${format(this.actual)} to be truthy`);
+    }
+
+    toBeFalsy() {
+      const pass = !this.actual;
+      this._assert(pass, `expected ${format(this.actual)} to be falsy`);
+    }
+
+    toBeTrue() {
+      const pass = this.actual === true;
+      this._assert(pass, `expected ${format(this.actual)} to be true`);
+    }
+
+    toBeFalse() {
+      const pass = this.actual === false;
+      this._assert(pass, `expected ${format(this.actual)} to be false`);
+    }
+
+    toBeGreaterThan(expected) {
+      const pass = this.actual > expected;
+      this._assert(pass, `expected ${format(this.actual)} to be greater than ${format(expected)}`);
+    }
+
+    toBeGreaterThanOrEqual(expected) {
+      const pass = this.actual >= expected;
+      this._assert(pass, `expected ${format(this.actual)} to be greater than or equal ${format(expected)}`);
+    }
+
+    toBeLessThan(expected) {
+      const pass = this.actual < expected;
+      this._assert(pass, `expected ${format(this.actual)} to be less than ${format(expected)}`);
+    }
+
+    toBeLessThanOrEqual(expected) {
+      const pass = this.actual <= expected;
+      this._assert(pass, `expected ${format(this.actual)} to be less than or equal ${format(expected)}`);
+    }
+
+    toBeCloseTo(expected, precision = 2) {
+      const pass = Math.abs(this.actual - expected) < Math.pow(10, -precision);
+      this._assert(pass, `expected ${format(this.actual)} to be close to ${format(expected)}`);
+    }
+
+    toContain(expected) {
+      const pass = this.actual && this.actual.includes && this.actual.includes(expected);
+      this._assert(pass, `expected ${format(this.actual)} to contain ${format(expected)}`);
+    }
+
+    toHaveLength(expected) {
+      const pass = this.actual && this.actual.length === expected;
+      this._assert(pass, `expected ${format(this.actual)} to have length ${format(expected)}`);
+    }
+
+    toHaveProperty(key, value) {
+      const hasKey = this.actual && Object.prototype.hasOwnProperty.call(this.actual, key);
+      if (value !== undefined) {
+        const pass = hasKey && deepEqual(this.actual[key], value);
+        this._assert(pass, `expected ${format(this.actual)} to have property ${format(key)} with value ${format(value)}`);
+      } else {
+        this._assert(hasKey, `expected ${format(this.actual)} to have property ${format(key)}`);
+      }
+    }
+
+    toBeInstanceOf(expected) {
+      const pass = this.actual instanceof expected;
+      this._assert(pass, `expected ${format(this.actual)} to be instance of ${expected.name}`);
+    }
+
+    toThrow(expected) {
+      let threw = false;
+      let thrown = null;
+      try {
+        this.actual();
+      } catch (e) {
+        threw = true;
+        thrown = e;
+      }
+
+      if (expected) {
+        const pass = threw && thrown.message.includes(expected);
+        this._assert(pass, `expected function to throw error containing "${expected}"`);
+      } else {
+        this._assert(threw, `expected function to throw`);
+      }
+    }
+
+    toMatch(expected) {
+      const pass = expected.test(this.actual);
+      this._assert(pass, `expected ${format(this.actual)} to match ${expected}`);
+    }
+
+    toMatchObject(expected) {
+      const pass = Object.keys(expected).every(key =>
+        deepEqual(this.actual[key], expected[key])
+      );
+      this._assert(pass, `expected ${format(this.actual)} to match object ${format(expected)}`);
+    }
+
+    _assert(pass, message) {
+      const finalPass = this.negated ? !pass : pass;
+      if (!finalPass) {
+        throw new AssertionError(this.negated ? `not ${message}` : message);
+      }
+    }
+  }
+
+  class AssertionError extends Error {
+    constructor(message) {
+      super(message);
+      this.name = 'AssertionError';
+    }
+  }
+
+  function expect(actual) {
+    return new Expectation(actual);
+  }
+
+  // ==================== 工具函数 ====================
 
   function deepEqual(a, b) {
     if (a === b) return true;
@@ -285,249 +252,129 @@
     if (typeof a !== typeof b) return false;
 
     if (typeof a === 'object') {
-      if (Array.isArray(a) !== Array.isArray(b)) return false;
-
       const keysA = Object.keys(a);
       const keysB = Object.keys(b);
-
       if (keysA.length !== keysB.length) return false;
 
       for (const key of keysA) {
         if (!keysB.includes(key)) return false;
         if (!deepEqual(a[key], b[key])) return false;
       }
-
       return true;
     }
 
     return false;
   }
 
-  // ==================== 测试定义 ====================
-
-  function describe(name, fn) {
-    const parentSuite = state.currentSuite;
-    const suite = {
-      name: parentSuite ? `${parentSuite.name} > ${name}` : name,
-      tests: [],
-      beforeEach: [],
-      afterEach: []
-    };
-
-    state.currentSuite = suite;
-    fn();
-    state.currentSuite = parentSuite;
-
-    if (parentSuite) {
-      parentSuite.tests.push(suite);
-    } else {
-      state.tests.push(suite);
-    }
+  function format(value) {
+    if (value === null) return 'null';
+    if (value === undefined) return 'undefined';
+    if (typeof value === 'string') return `"${value}"`;
+    if (typeof value === 'function') return '[Function]';
+    if (Array.isArray(value)) return `[${value.map(format).join(', ')}]`;
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
   }
 
-  function it(name, fn, timeout = 5000) {
-    if (!state.currentSuite) {
-      throw new Error('it() must be called inside describe()');
-    }
+  // ==================== 运行测试 ====================
 
-    state.currentSuite.tests.push({
-      name,
-      fn,
-      timeout,
-      type: 'test'
-    });
-  }
-
-  it.skip = function (name, fn) {
-    if (!state.currentSuite) {
-      throw new Error('it.skip() must be called inside describe()');
-    }
-
-    state.currentSuite.tests.push({
-      name,
-      fn,
-      type: 'skip'
-    });
-  };
-
-  it.only = function (name, fn, timeout = 5000) {
-    if (!state.currentSuite) {
-      throw new Error('it.only() must be called inside describe()');
-    }
-
-    state.currentSuite.tests.push({
-      name,
-      fn,
-      timeout,
-      type: 'only'
-    });
-  };
-
-  function beforeEach(fn) {
-    if (!state.currentSuite) {
-      throw new Error('beforeEach() must be called inside describe()');
-    }
-    state.currentSuite.beforeEach.push(fn);
-  }
-
-  function afterEach(fn) {
-    if (!state.currentSuite) {
-      throw new Error('afterEach() must be called inside describe()');
-    }
-    state.currentSuite.afterEach.push(fn);
-  }
-
-  // ==================== 测试执行 ====================
-
-  async function runTest(test, suite) {
-    const startTime = performance.now();
-
+  async function runTest(suite, test) {
     try {
-      // 执行 beforeEach
-      for (const fn of suite.beforeEach) {
-        await fn();
+      // beforeEach
+      if (suite.beforeEach) {
+        await suite.beforeEach();
       }
 
-      // 执行测试
-      await new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error(`Test timed out after ${test.timeout}ms`));
-        }, test.timeout);
+      // Run test
+      await test.fn();
 
-        Promise.resolve(test.fn()).then(
-          () => {
-            clearTimeout(timeoutId);
-            resolve();
-          },
-          (error) => {
-            clearTimeout(timeoutId);
-            reject(error);
-          }
-        );
-      });
-
-      // 执行 afterEach
-      for (const fn of suite.afterEach) {
-        await fn();
+      // afterEach
+      if (suite.afterEach) {
+        await suite.afterEach();
       }
 
-      const duration = performance.now() - startTime;
-      return { status: 'passed', duration };
+      return { passed: true };
     } catch (error) {
-      // 执行 afterEach（即使测试失败）
-      for (const fn of suite.afterEach) {
-        try {
-          await fn();
-        } catch (e) {
-          // 忽略 afterEach 错误
-        }
-      }
-
-      const duration = performance.now() - startTime;
-      return { status: 'failed', error, duration };
+      return {
+        passed: false,
+        error: error.message
+      };
     }
   }
 
-  async function runSuite(suite, level = 0) {
-    const indent = '  '.repeat(level);
-    console.log(`${indent}${suite.name}`);
-
-    const hasOnly = suite.tests.some(t => t.type === 'only');
+  async function runSuite(suite) {
+    const results = {
+      name: suite.name,
+      tests: []
+    };
 
     for (const test of suite.tests) {
-      if (test.type === 'suite') {
-        await runSuite(test, level + 1);
-      } else if (test.type === 'skip') {
-        console.log(`${indent}  ○ ${test.name}`);
-        state.skipped++;
-      } else if (test.type === 'only' || (!hasOnly && test.type === 'test')) {
-        const result = await runTest(test, suite);
+      if (test.skipped) {
+        results.tests.push({
+          name: test.name,
+          passed: true,
+          skipped: true
+        });
+        continue;
+      }
 
-        if (result.status === 'passed') {
-          console.log(`${indent}  ✓ ${test.name} (${result.duration.toFixed(0)}ms)`);
-          state.passed++;
-        } else {
-          console.log(`${indent}  ✗ ${test.name}`);
-          state.failed++;
-          state.errors.push({
-            suite: suite.name,
-            test: test.name,
-            error: result.error,
-            duration: result.duration
-          });
-        }
+      // Emit event
+      window.dispatchEvent(new CustomEvent('test-start', {
+        detail: { suite: suite.name, test: test.name }
+      }));
+
+      const result = await runTest(suite, test);
+      results.tests.push({
+        name: test.name,
+        passed: result.passed,
+        error: result.error
+      });
+
+      // Emit event
+      if (result.passed) {
+        window.dispatchEvent(new CustomEvent('test-pass', {
+          detail: { suite: suite.name, test: test.name }
+        }));
+      } else {
+        window.dispatchEvent(new CustomEvent('test-fail', {
+          detail: { suite: suite.name, test: test.name, error: result.error }
+        }));
       }
     }
+
+    // Emit suite complete
+    window.dispatchEvent(new CustomEvent('suite-complete', {
+      detail: results
+    }));
+
+    return results;
   }
 
-  async function run() {
-    console.log('\n🧪 Running Tests...\n');
-
-    const startTime = performance.now();
-
-    for (const suite of state.tests) {
+  async function runAll() {
+    for (const suite of suites) {
       await runSuite(suite);
     }
-
-    const totalTime = performance.now() - startTime;
-
-    // 输出结果
-    console.log('\n' + '='.repeat(50));
-    console.log(`Tests: ${state.passed + state.failed + state.skoked}`);
-    console.log(`  ✅ Passed: ${state.passed}`);
-    console.log(`  ❌ Failed: ${state.failed}`);
-    console.log(`  ⏭️  Skipped: ${state.skipped}`);
-    console.log(`Time: ${totalTime.toFixed(2)}ms`);
-    console.log('='.repeat(50));
-
-    // 输出错误详情
-    if (state.errors.length > 0) {
-      console.log('\nFailures:\n');
-      state.errors.forEach(({ suite, test, error }, index) => {
-        console.log(`${index + 1}) ${suite} > ${test}`);
-        console.log(`   ${error.message}`);
-        if (error.stack) {
-          console.log(`   ${error.stack.split('\n')[1]?.trim() || ''}`);
-        }
-        console.log();
-      });
-    }
-
-    // 返回结果
-    return {
-      passed: state.passed,
-      failed: state.failed,
-      skipped: state.skipped,
-      total: state.passed + state.failed + state.skipped,
-      success: state.failed === 0
-    };
-  }
-
-  function reset() {
-    state.currentSuite = null;
-    state.tests = [];
-    state.passed = 0;
-    state.failed = 0;
-    state.skipped = 0;
-    state.errors = [];
   }
 
   // ==================== 导出 ====================
   window.TestFramework = {
     describe,
     it,
+    xit,
     beforeEach,
     afterEach,
-    expect: Expect.toBe,
-    run,
-    reset
+    expect,
+    runAll,
+    runSuite,
+    suites
   };
 
   // 简写导出
   window.describe = describe;
   window.it = it;
+  window.xit = xit;
   window.beforeEach = beforeEach;
   window.afterEach = afterEach;
-  window.expect = Expect.toBe;
+  window.expect = expect;
 
 })();
