@@ -1,12 +1,10 @@
 /**
- * Main - 应用主入口
- * 负责初始化所有模块、协调模块间通信、管理全局状态
+ * Main - 应用主入口（优化版本）
+ * 集成模块加载器、性能监控、事件管理器
  */
 
 (function () {
   'use strict';
-
-  const { $$ } = Utils;
 
   // ==================== 全局状态 ====================
   const state = {
@@ -14,7 +12,8 @@
     booted: false,
     aiService: null,
     configService: null,
-    initErrors: []
+    initErrors: [],
+    initTime: 0
   };
 
   // ==================== 初始化 ====================
@@ -22,20 +21,157 @@
   /**
    * 应用初始化入口
    */
-  function init() {
+  async function init() {
+    const startTime = performance.now();
     console.log('[Main] Starting initialization...');
-    
+
     try {
-      initServices();
-      initModules();
-      runBootSequence();
+      // 初始化性能监控
+      if (window.PerformanceMonitor) {
+        PerformanceMonitor.start();
+        PerformanceMonitor.mark('init-start');
+      }
+
+      // 初始化事件管理器
+      if (window.EventManager) {
+        EventManager.startAutoCleanup();
+      }
+
+      // 初始化核心模块
+      await initCore();
+      
+      // 初始化服务
+      await initServices();
+      
+      // 初始化UI模块
+      await initUIModules();
+      
+      // 运行启动序列
+      await runBootSequence();
+      
+      // 设置事件监听
       setupEventListeners();
       registerEventHandlers();
-      console.log('[Main] Initialization complete');
+      
+      // 初始化懒加载
+      if (window.ModuleLoader) {
+        ModuleLoader.initLazy();
+      }
+
+      // 记录初始化时间
+      state.initTime = performance.now() - startTime;
+      console.log(`[Main] Initialization complete in ${state.initTime.toFixed(2)}ms`);
+      
+      if (window.PerformanceMonitor) {
+        PerformanceMonitor.mark('init-end');
+        PerformanceMonitor.measureBetween('init-start', 'init-end', 'app-initialization');
+      }
+
     } catch (error) {
       console.error('[Main] Initialization failed:', error);
+      PerformanceMonitor?.recordError(error, 'initialization');
       state.initErrors.push(error.message);
       showInitError(error);
+    }
+  }
+
+  /**
+   * 初始化核心模块
+   */
+  async function initCore() {
+    if (!window.ModuleLoader) {
+      throw new Error('ModuleLoader not available');
+    }
+    
+    await ModuleLoader.initCore();
+    console.log('[Main] Core modules loaded');
+  }
+
+  /**
+   * 初始化服务
+   */
+  async function initServices() {
+    // 检查依赖
+    if (typeof apiClient === 'undefined') {
+      throw new Error('APIClient not loaded');
+    }
+    if (typeof eventBus === 'undefined') {
+      throw new Error('EventBus not loaded');
+    }
+
+    // 等待服务模块加载
+    const AIService = ModuleLoader.get('AIService');
+    const ConfigService = ModuleLoader.get('ConfigService');
+
+    if (!AIService || !ConfigService) {
+      throw new Error('Required services not loaded');
+    }
+
+    state.aiService = new AIService(apiClient, eventBus);
+    state.configService = new ConfigService(apiClient, eventBus);
+
+    try {
+      const { config } = await state.configService.init();
+      if (config) updateStatusBar(config);
+    } catch (error) {
+      console.warn('[Main] ConfigService init failed, using defaults:', error);
+    }
+  }
+
+  /**
+   * 初始化UI模块
+   */
+  async function initUIModules() {
+    const modules = [
+      { name: 'ThemeManager', required: true },
+      { name: 'ChatUI', required: true },
+      { name: 'Particles', required: true },
+      { name: 'WindowControl', required: true },
+      { name: 'Mascot', required: false },
+      { name: 'ModeIndicator', required: false },
+      { name: 'ChatHandler', required: true, deps: ['aiService'] },
+      { name: 'KnowledgeUI', required: false, deps: ['aiService'] },
+      { name: 'StatusBarManager', required: true }
+    ];
+
+    for (const { name, required, deps } of modules) {
+      try {
+        // 优先从 ModuleLoader 获取，否则从 window 获取
+        let module = ModuleLoader.get(name);
+        if (!module && window[name]) {
+          module = window[name];
+        }
+        
+        if (!module) {
+          if (required) {
+            console.warn(`[Main] Required module ${name} not available`);
+          }
+          continue;
+        }
+
+        // 准备初始化参数
+        const initArgs = [];
+        if (deps) {
+          deps.forEach(dep => {
+            if (dep === 'aiService') initArgs.push(state.aiService);
+          });
+        }
+
+        // 测量初始化时间
+        const initStart = performance.now();
+        if (module.init) {
+          await module.init(...initArgs);
+        }
+        const initTime = performance.now() - initStart;
+        
+        console.log(`[Main] ${name} initialized (${initTime.toFixed(2)}ms)`);
+      } catch (error) {
+        console.error(`[Main] ${name} init failed:`, error);
+        PerformanceMonitor?.recordError(error, `${name}-init`);
+        if (required) {
+          state.initErrors.push(`${name}: ${error.message}`);
+        }
+      }
     }
   }
 
@@ -55,81 +191,44 @@
   }
 
   /**
-   * 初始化服务
-   */
-  function initServices() {
-    // 检查依赖是否加载
-    if (typeof apiClient === 'undefined') {
-      throw new Error('APIClient not loaded');
-    }
-    if (typeof eventBus === 'undefined') {
-      throw new Error('EventBus not loaded');
-    }
-
-    state.aiService = new AIService(apiClient, eventBus);
-    state.configService = new ConfigService(apiClient, eventBus);
-
-    state.configService.init()
-      .then(({ config }) => {
-        if (config) updateStatusBar(config);
-      })
-      .catch((error) => {
-        console.warn('[Main] ConfigService init failed, using defaults:', error);
-      });
-  }
-
-  /**
-   * 初始化各功能模块
-   */
-  function initModules() {
-    const modules = [
-      { name: 'ThemeManager', init: () => ThemeManager.init() },
-      { name: 'ChatUI', init: () => ChatUI.init() },
-      { name: 'Particles', init: () => Particles.init() },
-      { name: 'WindowControl', init: () => WindowControl.init() },
-      { name: 'Mascot', init: () => Mascot.init() },
-      { name: 'ChatHandler', init: () => ChatHandler.init(state.aiService) },
-      { name: 'KnowledgeUI', init: () => KnowledgeUI.init(state.aiService) },
-      { name: 'CAEWorkbench', init: () => CAEWorkbench.init() },
-      { name: 'StatusBarManager', init: () => StatusBarManager.init() },
-    ];
-
-    for (const { name, init } of modules) {
-      try {
-        if (typeof window[name] !== 'undefined') {
-          init();
-          console.log(`[Main] ${name} initialized`);
-        } else {
-          console.warn(`[Main] ${name} not available`);
-        }
-      } catch (error) {
-        console.error(`[Main] ${name} init failed:`, error);
-        state.initErrors.push(`${name}: ${error.message}`);
-      }
-    }
-  }
-
-  /**
    * 运行启动序列
    */
-  function runBootSequence() {
-    ChatUI.runBootSequence(() => {
-      state.booted = true;
-      ChatHandler.setBooted(true);
-    });
+  async function runBootSequence() {
+    const ChatUI = ModuleLoader.get('ChatUI');
+    const ChatHandler = ModuleLoader.get('ChatHandler');
+    
+    if (ChatUI && ChatUI.runBootSequence) {
+      return new Promise((resolve) => {
+        ChatUI.runBootSequence(() => {
+          state.booted = true;
+          if (ChatHandler && ChatHandler.setBooted) {
+            ChatHandler.setBooted(true);
+          }
+          resolve();
+        });
+      });
+    }
   }
 
   /**
-   * 设置事件监听器
+   * 设置事件监听器（使用事件委托优化）
    */
   function setupEventListeners() {
-    // Tab 切换
-    $$('.sidebar-icon').forEach(icon => {
-      icon.addEventListener('click', () => switchTab(icon.dataset.tab));
-      icon.addEventListener('mouseenter', () => {
-        const { left, top, width, height } = icon.getBoundingClientRect();
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    // 使用事件委托处理Tab切换
+    EventManager?.delegate(sidebar, '.sidebar-icon', 'click', (e, target) => {
+      const tab = target.dataset.tab;
+      if (tab) switchTab(tab);
+    });
+
+    // 使用事件委托处理hover效果
+    EventManager?.delegate(sidebar, '.sidebar-icon', 'mouseenter', (e, target) => {
+      const { left, top, width, height } = target.getBoundingClientRect();
+      if (window.Particles) {
         Particles.createHoverSplash(left + width / 2, top + height / 2);
-      });
+      }
     });
   }
 
@@ -137,29 +236,30 @@
    * 注册事件总线处理器
    */
   function registerEventHandlers() {
-    eventBus.on(Events.AI_MESSAGE_SENT, ({ message }) => {
-      console.log('Sent:', message);
-    });
+    if (!eventBus) return;
 
-    eventBus.on(Events.AI_RESPONSE_RECEIVED, ({ message }) => {
-      console.log('Received:', message);
-    });
+    const handlers = {
+      [Events.AI_MESSAGE_SENT]: ({ message }) => {
+        console.log('Sent:', message);
+      },
+      [Events.AI_RESPONSE_RECEIVED]: ({ message }) => {
+        console.log('Received:', message);
+      },
+      [Events.AI_ERROR]: ({ error }) => {
+        console.error('AI Error:', error);
+        const ChatUI = ModuleLoader.get('ChatUI');
+        ChatUI?.addSystemMessage?.(`Error: ${error}`);
+        PerformanceMonitor?.recordError(new Error(error), 'ai-response');
+      },
+      [Events.CONFIG_LOADED]: ({ config }) => {
+        updateStatusBar(config);
+      },
+      [Events.RAG_ENABLED]: () => updateRAGStatus(true),
+      [Events.RAG_DISABLED]: () => updateRAGStatus(false)
+    };
 
-    eventBus.on(Events.AI_ERROR, ({ error }) => {
-      console.error('AI Error:', error);
-      ChatUI.addSystemMessage(`Error: ${error}`);
-    });
-
-    eventBus.on(Events.CONFIG_LOADED, ({ config }) => {
-      updateStatusBar(config);
-    });
-
-    eventBus.on(Events.RAG_ENABLED, () => {
-      updateRAGStatus(true);
-    });
-
-    eventBus.on(Events.RAG_DISABLED, () => {
-      updateRAGStatus(false);
+    Object.entries(handlers).forEach(([event, handler]) => {
+      eventBus.on(event, handler);
     });
   }
 
@@ -169,25 +269,41 @@
    * 切换 Tab
    * @param {string} tab - Tab 名称
    */
-  function switchTab(tab) {
+  async function switchTab(tab) {
+    const oldTab = state.activeTab;
     state.activeTab = tab;
 
-    $$('.sidebar-icon').forEach(icon => {
-      icon.classList.toggle('active', icon.dataset.tab === tab);
+    // 更新侧边栏状态
+    document.querySelectorAll('.sidebar-icon').forEach(icon => {
+      const isActive = icon.dataset.tab === tab;
+      icon.classList.toggle('active', isActive);
+      icon.setAttribute('aria-selected', isActive);
     });
 
-    $$('.tab-panel').forEach(panel => {
+    // 更新面板显示
+    document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === `${tab}-panel`);
     });
 
-    eventBus.emit(Events.UI_TAB_CHANGED, { tab });
+    // 懒加载CAE模块
+    if (tab === 'cae' && !ModuleLoader.isLoaded('CAEWorkbench')) {
+      try {
+        await ModuleLoader.lazyLoad('CAEWorkbench');
+        const CAEWorkbench = ModuleLoader.get('CAEWorkbench');
+        CAEWorkbench?.init();
+      } catch (error) {
+        console.error('[Main] Failed to load CAEWorkbench:', error);
+      }
+    }
 
-    // Experience Library 走马灯控制
+    // Experience Library 控制
     if (tab === 'experience') {
       window.ExpLib?.resume();
     } else {
       window.ExpLib?.pause();
     }
+
+    eventBus?.emit(Events.UI_TAB_CHANGED, { tab, oldTab });
   }
 
   // ==================== 状态栏更新 ====================
@@ -220,6 +336,24 @@
     ragEl.classList.toggle('status-on', enabled);
   }
 
+  // ==================== 性能监控命令 ====================
+
+  /**
+   * 获取性能报告
+   */
+  window.getPerformanceReport = () => {
+    return PerformanceMonitor?.getReport();
+  };
+
+  /**
+   * 获取应用状态
+   */
+  window.getAppState = () => ({
+    ...state,
+    loadedModules: Object.keys(window.ModuleLoader?.registry || {}),
+    eventStats: window.EventManager?.getStats?.()
+  });
+
   // ==================== 启动应用 ====================
 
   if (document.readyState === 'loading') {
@@ -228,7 +362,7 @@
     init();
   }
 
-  // 导出全局状态（调试用）
+  // 导出全局状态
   window.AppState = state;
 
 })();

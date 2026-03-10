@@ -353,17 +353,37 @@
    * 浏览 GGUF 文件
    */
   async function browseGGUFFile() {
-    const api = window.pywebview?.api;
+    console.log('[StatusBar] browseGGUFFile called');
+
+    // 等待 pywebview 就绪
+    if (!window.pywebview?.api) {
+      console.warn('[StatusBar] PyWebView API not ready');
+      showToast('File browser not available in dev mode', 'info');
+      if (elements.ggufPathInput) {
+        elements.ggufPathInput.focus();
+      }
+      return;
+    }
+
+    const api = window.pywebview.api;
 
     if (api && api.select_gguf_file) {
-      const filePath = await api.select_gguf_file();
-      if (filePath && elements.ggufPathInput) {
-        elements.ggufPathInput.value = filePath;
-        await loadGGUFModel();
+      try {
+        const filePath = await api.select_gguf_file();
+        if (filePath && elements.ggufPathInput) {
+          elements.ggufPathInput.value = filePath;
+          await loadGGUFModel();
+        }
+      } catch (error) {
+        console.error('[StatusBar] File dialog failed:', error);
+        showToast('File dialog failed', 'error');
       }
-    } else if (elements.ggufPathInput) {
-      elements.ggufPathInput.focus();
-      showToast('Please enter model path manually', 'info');
+    } else {
+      console.warn('[StatusBar] select_gguf_file not available');
+      if (elements.ggufPathInput) {
+        elements.ggufPathInput.focus();
+        showToast('Please enter model path manually', 'info');
+      }
     }
   }
 
@@ -525,6 +545,25 @@
       // 触发事件
       if (window.eventBus) {
         eventBus.emit(state.ragEnabled ? Events.RAG_ENABLED : Events.RAG_DISABLED);
+      }
+
+      // 自动切换AI模式
+      if (state.ragEnabled && window.aiService) {
+        // 启用RAG时切换到知识库模式
+        try {
+          await aiService.switchToKnowledgeMode();
+          showToast('已切换到知识库模式', 'info');
+        } catch (e) {
+          console.error('[StatusBar] Failed to switch mode:', e);
+        }
+      } else if (!state.ragEnabled && window.aiService) {
+        // 禁用RAG时切换回聊天模式
+        try {
+          await aiService.switchToChatMode();
+          showToast('已切换到AI聊天模式', 'info');
+        } catch (e) {
+          console.error('[StatusBar] Failed to switch mode:', e);
+        }
       }
     } catch (error) {
       console.error('[StatusBar] Failed to toggle RAG:', error);

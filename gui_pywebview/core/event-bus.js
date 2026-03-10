@@ -17,6 +17,12 @@ const Events = {
   RAG_RESULT: 'rag:result',
   RAG_ERROR: 'rag:error',
 
+  // 模式切换相关
+  MODE_SWITCHED_TO_KNOWLEDGE: 'mode:switched-to-knowledge',
+  MODE_SWITCHED_TO_CHAT: 'mode:switched-to-chat',
+  MODE_RESET: 'mode:reset',
+  MODE_SWITCH_ERROR: 'mode:switch-error',
+
   // 配置相关
   CONFIG_UPDATED: 'config:updated',
   CONFIG_LOADED: 'config:loaded',

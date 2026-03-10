@@ -51,14 +51,10 @@ app = FastAPI(
 
 # ── CORS 中间件 ───────────────────────────────────────────────────────────────
 
+# 注意：在生产环境中应该限制具体的 origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5000",
-        "http://127.0.0.1:5000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-    ],
+    allow_origins=["*"],  # 允许所有来源（开发环境）
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

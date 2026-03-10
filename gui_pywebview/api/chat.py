@@ -51,6 +51,10 @@ async def chat(request: ChatRequest) -> ChatResponse:
     context, rag_used = "", False
     if should_use_rag(request.rag):
         context, rag_used = retrieve_context(user_message)
+        # 如果启用了RAG，自动切换到知识库模式
+        if rag_used and state.mode != "knowledge":
+            state.set_mode("knowledge")
+            logger.info("Auto-switched to knowledge mode (RAG enabled)")
 
     # 根据当前 provider 决定使用哪个后端
     if state.current_provider == "gguf":
@@ -70,7 +74,15 @@ async def _chat_with_gguf(
         )
 
     try:
-        messages = state.conversation_history[-10:]
+        # 构建消息列表，包含系统提示词
+        system_prompt = state.get_system_prompt()
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(state.conversation_history[-10:])
+        
+        # 如果有上下文，添加到用户消息中
+        if context:
+            messages[-1]["content"] = f"{user_message}\n\n相关上下文:\n{context}"
+        
         output = state.gguf_llm.create_chat_completion(
             messages=messages,
             temperature=0.7,
@@ -102,7 +114,19 @@ async def _chat_with_ollama(
     """使用 Ollama 后端进行聊天"""
     llm = get_llm_client()
     try:
-        response_text = llm.call(user_message, context)
+        # 构建消息列表，包含系统提示词
+        system_prompt = state.get_system_prompt()
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # 添加历史记录
+        messages.extend(state.conversation_history[-10:])
+        
+        # 如果有上下文，添加到用户消息中
+        if context:
+            messages[-1]["content"] = f"{user_message}\n\n相关上下文:\n{context}"
+        
+        # 使用 chat 方法调用
+        response_text = llm.provider.chat(messages)
     except Exception as e:
         logger.error(f"LLM 调用失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"LLM 调用失败: {e}")
@@ -132,9 +156,14 @@ async def chat_stream(request: ChatRequest):
     context, rag_used = "", False
     if should_use_rag(request.rag):
         context, rag_used = retrieve_context(user_message)
+        # 如果启用了RAG，自动切换到知识库模式
+        if rag_used and state.mode != "knowledge":
+            state.set_mode("knowledge")
+            logger.info("Auto-switched to knowledge mode (RAG enabled)")
 
-    # 构建消息列表（最近 10 条历史）
-    messages = [{"role": "system", "content": "You are a helpful AI assistant."}]
+    # 构建消息列表（最近 10 条历史），使用当前模式的系统提示词
+    system_prompt = state.get_system_prompt()
+    messages = [{"role": "system", "content": system_prompt}]
     messages.extend(state.conversation_history[-10:])
     if context:
         messages[-1]["content"] = f"{user_message}\n\n相关上下文:\n{context}"
@@ -219,3 +248,67 @@ async def clear_history() -> dict:
     state.conversation_history.clear()
     logger.info("对话历史已清空")
     return {"success": True, "message": "History cleared"}
+
+
+# ── 模式管理 ──────────────────────────────────────────────────────────────────
+
+
+class ModeRequest(BaseModel):
+    """模式切换请求"""
+    mode: str = Field(..., description="模式: 'chat' 或 'knowledge'")
+
+
+class ModeResponse(BaseModel):
+    """模式响应"""
+    mode: str
+    is_knowledge_mode: bool
+    system_prompt_preview: str
+
+
+@router.get("/mode", response_model=ModeResponse)
+async def get_mode() -> ModeResponse:
+    """获取当前模式"""
+    current_mode = state.get_mode()
+    system_prompt = state.get_system_prompt()
+    # 只返回前100字符作为预览
+    preview = system_prompt[:100] + "..." if len(system_prompt) > 100 else system_prompt
+    return ModeResponse(
+        mode=current_mode,
+        is_knowledge_mode=state.is_knowledge_mode(),
+        system_prompt_preview=preview
+    )
+
+
+@router.post("/mode", response_model=ModeResponse)
+async def set_mode(request: ModeRequest) -> ModeResponse:
+    """设置当前模式"""
+    if request.mode not in ["chat", "knowledge"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid mode: {request.mode}. Must be 'chat' or 'knowledge'"
+        )
+    
+    success = state.set_mode(request.mode)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to set mode")
+    
+    logger.info(f"Mode switched to: {request.mode}")
+    
+    current_mode = state.get_mode()
+    system_prompt = state.get_system_prompt()
+    preview = system_prompt[:100] + "..." if len(system_prompt) > 100 else system_prompt
+    
+    return ModeResponse(
+        mode=current_mode,
+        is_knowledge_mode=state.is_knowledge_mode(),
+        system_prompt_preview=preview
+    )
+
+
+
+@router.post("/mode/reset")
+async def reset_mode() -> dict:
+    """重置为默认模式（chat）"""
+    state.set_mode("chat")
+    logger.info("Mode reset to default: chat")
+    return {"success": True, "mode": "chat", "message": "Mode reset to default"}

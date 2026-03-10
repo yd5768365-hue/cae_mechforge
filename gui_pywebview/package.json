@@ -9,7 +9,14 @@
     "build": "python build.py --build",
     "clean": "python build.py --clean",
     "lint": "eslint app/**/*.js core/**/*.js services/**/*.js",
-    "lint:fix": "eslint app/**/*.js core/**/*.js services/**/*.js --fix"
+    "lint:fix": "eslint app/**/*.js core/**/*.js services/**/*.js --fix",
+    "quality": "node scripts/code-quality.js",
+    "quality:check": "npm run lint && npm run quality",
+    "format": "prettier --write \"**/*.js\" \"**/*.css\" \"**/*.html\"",
+    "format:check": "prettier --check \"**/*.js\" \"**/*.css\" \"**/*.html\"",
+    "test": "node tests/test-framework.js",
+    "test:browser": "start tests/index.html",
+    "test:coverage": "npm test -- --coverage"
   },
   "keywords": [
     "mechforge",

@@ -190,6 +190,10 @@
   border: 1px solid rgba(0, 229, 255, 0.08);
   position: relative;
   overflow: hidden;
+  /* 重置按钮样式 */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .sidebar-icon svg {
