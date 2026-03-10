@@ -863,3 +863,284 @@
   background: var(--ind-cyan-dim);
   box-shadow: 0 0 8px var(--ind-cyan-glow);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Experience Library - 工业激光刻字标题
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 导入工业字体 */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Noto+Sans+SC:wght@100;300;400;500&display=swap');
+
+#experience-panel {
+  position: relative;
+  background: transparent;
+}
+
+/* 面板头部 - 锻造铭牌风格 */
+#experience-panel .panel-header {
+  position: relative;
+  padding: 32px 28px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 37, 47, 0.95) 0%,
+    rgba(15, 21, 28, 0.9) 50%,
+    rgba(5, 7, 15, 0.95) 100%
+  );
+  border-bottom: none;
+  overflow: hidden;
+}
+
+/* 热影响区渐变线 */
+#experience-panel .panel-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 28px;
+  right: 28px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 71, 87, 0.8) 5%,
+    rgba(255, 107, 53, 0.6) 25%,
+    rgba(138, 43, 226, 0.5) 50%,
+    rgba(0, 212, 255, 0.6) 75%,
+    rgba(0, 100, 150, 0.4) 95%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 -2px 8px rgba(255, 71, 87, 0.3),
+    0 -1px 4px rgba(0, 212, 255, 0.2);
+}
+
+/* 主标题 - 粗壮工业字体 + 激光刻字效果 */
+#experience-panel .panel-header h2 {
+  font-family: 'Chakra Petch', 'DIN Next Pro Condensed', 'Impact', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: #e8f0f8;
+  /* 激光刻字效果：冷白带极淡青晕 */
+  text-shadow:
+    /* 内层锐利亮线 */
+    0 0 1px rgba(255, 255, 255, 0.8),
+    0 0 2px rgba(255, 255, 255, 0.6),
+    /* 中层淡青扩散 */
+    0 0 8px rgba(0, 212, 255, 0.3),
+    0 0 12px rgba(0, 212, 255, 0.2),
+    /* 外层极淡晕 */
+    0 0 20px rgba(0, 212, 255, 0.1);
+  position: relative;
+}
+
+/* 标题蚀刻纹理效果 */
+#experience-panel .panel-header h2::before {
+  content: 'EXPERIENCE LIBRARY';
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: transparent;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  pointer-events: none;
+}
+
+/* 中文副标题 - 激光刻字感，钛合金表面蚀刻 */
+#experience-panel .panel-header p {
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  color: #8aa0b8;
+  margin-top: 12px;
+  /* 激光蚀刻效果 */
+  text-shadow:
+    /* 内陷阴影 */
+    0 1px 1px rgba(0, 0, 0, 0.8),
+    /* 顶部高光 */
+    0 -1px 1px rgba(255, 255, 255, 0.1),
+    /* 极淡青晕 */
+    0 0 6px rgba(0, 212, 255, 0.15);
+  opacity: 0.9;
+}
+
+/* 标题区装饰 - 烧蚀边角 */
+#experience-panel .panel-header::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  border-left: 2px solid rgba(255, 107, 53, 0.4);
+  border-top: 2px solid rgba(255, 107, 53, 0.4);
+  opacity: 0.6;
+  filter: blur(0.5px);
+}
+
+/* 标题区右侧烧蚀标记 */
+#experience-panel .panel-header .header-mark {
+  position: absolute;
+  top: 16px;
+  right: 28px;
+  font-family: 'Chakra Petch', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255, 107, 53, 0.6);
+  text-transform: uppercase;
+  transform: rotate(90deg);
+  transform-origin: right top;
+}
+
+/* 档案编号标记 */
+#experience-panel .panel-header .archive-id {
+  position: absolute;
+  bottom: 16px;
+  right: 28px;
+  font-family: 'Chakra Petch', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--ind-text-dim);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 10px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* 搜索区域工业风格 */
+#experience-panel .exp-search-section {
+  padding: 20px 28px;
+  background: rgba(5, 7, 15, 0.6);
+  border-bottom: var(--border-forged);
+}
+
+#experience-panel .exp-search-section .search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ind-titanium);
+  border: var(--border-forged);
+  border-radius: 4px;
+  padding: 12px 18px;
+  position: relative;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 经验卡片网格 */
+#experience-panel .search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* 经验卡片 */
+#experience-panel .exp-card {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 37, 47, 0.95) 0%,
+    rgba(15, 21, 28, 0.95) 100%
+  );
+  border: var(--border-forged);
+  border-left: 3px solid var(--ind-cyan);
+  border-radius: 2px;
+  padding: 16px 18px;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+#experience-panel .exp-card:hover {
+  border-color: var(--ind-cyan);
+  border-left-width: 4px;
+  box-shadow: 
+    var(--glow-outer),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateX(4px);
+}
+
+/* 警示级别卡片 */
+#experience-panel .exp-card.critical {
+  border-left-color: var(--ind-alert);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 26, 26, 0.95) 0%,
+    rgba(28, 15, 15, 0.95) 100%
+  );
+}
+
+#experience-panel .exp-card.warning {
+  border-left-color: var(--ind-warning);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 35, 26, 0.95) 0%,
+    rgba(28, 20, 15, 0.95) 100%
+  );
+}
+
+/* 卡片标题 */
+#experience-panel .exp-card-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--ind-cyan);
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px var(--ind-cyan-glow);
+}
+
+/* 卡片描述 */
+#experience-panel .exp-card-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ind-text-secondary);
+  margin-bottom: 12px;
+}
+
+/* 卡片标签 */
+#experience-panel .exp-card-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#experience-panel .exp-card-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: var(--ind-titanium-dark);
+  color: var(--ind-text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#experience-panel .exp-card-tag.critical {
+  background: rgba(255, 71, 87, 0.2);
+  color: var(--ind-alert);
+  border-color: var(--ind-alert);
+}
+
+#experience-panel .exp-card-tag.warning {
+  background: rgba(255, 107, 53, 0.2);
+  color: var(--ind-warning);
+  border-color: var(--ind-warning);
+}
