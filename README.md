@@ -170,10 +170,22 @@ pip install -e ".[all]"
 
 ## 📚 文档中心
 
+### 核心文档
+
 | 文档 | 说明 |
 |------|------|
 | [README.md](README.md) | 项目介绍 |
 | [INSTALL.md](INSTALL.md) | 安装指南 |
+| [USAGE.md](docs/USAGE.md) | 使用指南 |
+| [CONFIG.md](docs/CONFIG.md) | 配置说明 |
+| [API.md](docs/API.md) | API 文档 |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 架构文档 |
+| [ABOUT.md](docs/ABOUT.md) | 关于开发者 |
+
+### 其他文档
+
+| 文档 | 说明 |
+|------|------|
 | [CHANGELOG.md](开发日志/CHANGELOG.md) | 更新日志 |
 | [DEV_LOG.md](开发日志/DEV_LOG.md) | 开发日志 |
 | [DOCKER.md](docs/DOCKER.md) | Docker 部署 |
