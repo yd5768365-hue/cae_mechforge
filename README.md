@@ -26,15 +26,47 @@
 
 ---
 
-## 📖 文档导航
+## 📚 文档中心
 
-| 文档 | 说明 |
-|------|------|
-| [README.md](README.md) | 项目介绍 |
-| [INSTALL.md](INSTALL.md) | 安装指南 |
-| [开发日志/DEV_LOG.md](开发日志/DEV_LOG.md) | 开发经历 |
-| [开发日志/CHANGELOG.md](开发日志/CHANGELOG.md) | 更新日志 |
-| [QWEN.md](QWEN.md) | 项目上下文 |
+> 所有文档统一管理，点击链接即可查看
+
+### 核心文档
+
+| 文档 | 说明 | 链接 |
+|------|------|------|
+| 📖 项目介绍 | 功能概述、快速开始 | [README.md](README.md) |
+| 📦 安装指南 | 环境配置、依赖安装 | [INSTALL.md](INSTALL.md) |
+| 📝 更新日志 | 版本历史、变更记录 | [CHANGELOG.md](开发日志/CHANGELOG.md) |
+| 🔧 开发日志 | 开发经历、问题解决 | [DEV_LOG.md](开发日志/DEV_LOG.md) |
+| 🐳 Docker 部署 | 容器化部署指南 | [DOCKER.md](docs/DOCKER.md) |
+
+### 模块文档
+
+| 模块 | 说明 | 链接 |
+|------|------|------|
+| 🤖 AI 对话 | LLM 客户端、MCP 工具 | [mechforge_ai/](mechforge_ai/) |
+| 📚 知识库 | RAG 引擎、向量检索 | [mechforge_knowledge/](mechforge_knowledge/) |
+| ⚙️ CAE 工作台 | 网格划分、FEA 求解 | [mechforge_work/](mechforge_work/) |
+| 🌐 Web 服务 | FastAPI、WebSocket | [mechforge_web/](mechforge_web/) |
+| 🖥️ GUI 应用 | PyWebView 桌面界面 | [gui_pywebview/](gui_pywebview/) |
+| 🎨 主题组件 | UI 组件、样式 | [mechforge_theme/](mechforge_theme/) |
+| 🔧 核心模块 | 配置、日志、缓存 | [mechforge_core/](mechforge_core/) |
+
+### AI 助手配置
+
+| 文档 | 说明 | 链接 |
+|------|------|------|
+| 🤖 Qwen 配置 | 项目上下文、开发规范 | [QWEN.md](QWEN.md) |
+| 🤖 Claude 配置 | 项目上下文 | [CLAUDE.md](CLAUDE.md) |
+| 🔌 MCP 配置 | 工具调用协议 | [mcp_config.json](mcp_config.json) |
+
+### 开发报告
+
+| 文档 | 说明 | 链接 |
+|------|------|------|
+| 📊 GUI 实现总结 | PyWebView 开发经历 | [GUI_AI_实现总结.md](开发日志/2026-03-08_GUI_AI_实现总结.md) |
+| 📊 GUI 完成报告 | 功能实现报告 | [GUI_AI_完成报告.md](docs/GUI_AI_完成报告.md) |
+| 📊 功能检查报告 | 项目功能验证 | [项目功能检查报告.md](docs/项目功能检查报告.md) |
 
 ---
 
@@ -122,7 +154,7 @@
 ### 4. Web 界面
 
 <p align="center">
-  <img src="docs/images/web_interface.png" alt="Web 界面" width="600"/>
+  <em>Web 界面截图待添加</em>
 </p>
 
 **启动命令**: `mechforge-web`
@@ -147,13 +179,7 @@
 ### 5. GUI 桌面应用
 
 <p align="center">
-  <video src="docs/images/gui_demo.mp4" controls="controls" width="600" style="max-width: 100%;">
-    您的浏览器不支持视频播放
-  </video>
-</p>
-
-<p align="center">
-  <a href="docs/images/gui_demo.mp4">📥 下载视频</a>
+  <em>GUI 演示视频待添加: docs/images/gui_demo.mp4</em>
 </p>
 
 **启动命令**: `mechforge-gui`
@@ -246,12 +272,13 @@ mechforge_ai/
 ├── mechforge_knowledge/     # 知识库模块
 ├── mechforge_work/          # CAE 工作台模块
 ├── mechforge_web/           # Web 服务模块
-├── gui_pywebview/        # GUI 桌面应用 
+├── gui_pywebview/           # GUI 桌面应用
 ├── mechforge_theme/         # 主题组件
 ├── docs/                    # 文档
+├── 开发日志/                # 开发日志
 ├── tests/                   # 测试
 ├── examples/                # 示例
-└── 开发日志/                # 开发日志
+└── scripts/                 # 脚本
 ```
 
 ---
