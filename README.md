@@ -154,7 +154,7 @@
 ### 4. Web 界面
 
 <p align="center">
-  <em>Web 界面截图待添加</em>
+  <img src="docs/images/web.png" alt="Web 界面" width="600"/>
 </p>
 
 **启动命令**: `mechforge-web`
@@ -179,7 +179,13 @@
 ### 5. GUI 桌面应用
 
 <p align="center">
-  <em>GUI 演示视频待添加: docs/images/gui_demo.mp4</em>
+  <video src="docs/images/gui.mp4" controls="controls" width="600" style="max-width: 100%;">
+    您的浏览器不支持视频播放
+  </video>
+</p>
+
+<p align="center">
+  <a href="docs/images/gui.mp4">📥 下载视频</a>
 </p>
 
 **启动命令**: `mechforge-gui`
