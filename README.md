@@ -147,7 +147,13 @@
 ### 5. GUI 桌面应用
 
 <p align="center">
-  <img src="docs/images/gui_app.png" alt="GUI 桌面应用" width="600"/>
+  <video src="docs/images/gui_demo.mp4" controls="controls" width="600" style="max-width: 100%;">
+    您的浏览器不支持视频播放
+  </video>
+</p>
+
+<p align="center">
+  <a href="docs/images/gui_demo.mp4">📥 下载视频</a>
 </p>
 
 **启动命令**: `mechforge-gui`
@@ -156,11 +162,21 @@
 - 🎨 科幻控制台风格主题
 - 🌌 深空蓝背景 + 霓虹青强调色
 - ✨ Modern Dark Glassmorphism 设计
+- 🤖 AI 对话、知识库、CAE 工作台、经验库集成
 - 📦 单文件打包 (~71MB)
 
+**界面模块**:
+| 模块 | 功能 |
+|------|------|
+| AI 助手 | 多模型对话、流式响应、MCP 工具调用 |
+| 知识库 | RAG 检索、书籍轮播、分类标签 |
+| CAE 工作台 | 模型加载、网格划分、求解可视化 |
+| 经验库 | 故障案例、Daily Feed 知识推送 |
+| 设置 | API 配置、主题切换、知识库路径 |
+
 **相关文档**:
-- [GUI 模块文档](mechforge_gui_ai/)
-- [主题设计](mechforge_gui_ai/theme.py)
+- [GUI 模块文档](gui_pywebview/)
+- [主题设计](gui_pywebview/css/industrial-theme.css)
 
 **开发经历**:
 - [2026-03-08 GUI AI 实现总结](开发日志/2026-03-08_GUI_AI_实现总结.md)
