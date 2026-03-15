@@ -1,72 +1,86 @@
-# MechForge AI
+<div align="center">
 
-<p align="center">
-  <img src="docs/images/logo.png" alt="MechForge Logo" width="200"/>
-</p>
+# 🔧 MechForge AI
 
-<p align="center">
-  <strong>真正懂机械、敢说真话、能真算</strong>
-</p>
+<img src="docs/images/logo.png" alt="MechForge Logo" width="180"/>
 
-<p align="center">
-  机械系苦逼在校生，用代码修补现实的缝隙 🔧🤖
-</p>
+### 真正懂机械、敢说真话、能真算
 
-<p align="center">
+**机械系苦逼在校生，用代码修补现实的缝隙 🤖**
+
+<p>
   <a href="https://github.com/yd5768365-hue/mechforge/releases">
-    <img src="https://img.shields.io/badge/version-0.4.0-blue.svg" alt="Version"/>
+    <img src="https://img.shields.io/badge/version-0.4.0-blue.svg?style=flat-square" alt="Version"/>
   </a>
   <a href="https://github.com/yd5768365-hue/mechforge/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"/>
+    <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"/>
   </a>
   <a href="https://python.org">
-    <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python"/>
+    <img src="https://img.shields.io/badge/python-3.10+-blue.svg?style=flat-square" alt="Python"/>
+  </a>
+  <a href="https://github.com/yd5768365-hue/mechforge/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/yd5768365-hue/mechforge/ci.yml?style=flat-square&label=CI" alt="CI"/>
+  </a>
+  <a href="https://github.com/yd5768365-hue/mechforge/stargazers">
+    <img src="https://img.shields.io/github/stars/yd5768365-hue/mechforge?style=flat-square&color=yellow" alt="Stars"/>
+  </a>
+  <a href="https://github.com/yd5768365-hue/mechforge/issues">
+    <img src="https://img.shields.io/github/issues/yd5768365-hue/mechforge?style=flat-square" alt="Issues"/>
   </a>
 </p>
+
+**[快速开始](#-快速开始) • [功能展示](#️-界面展示) • [文档中心](#-文档中心) • [贡献指南](#-贡献指南)**
+
+</div>
 
 ---
 
-## 📚 文档中心
+## ✨ 功能亮点
 
-> 所有文档统一管理，点击链接即可查看
+<table>
+<tr>
+<td width="50%" valign="top">
 
-### 核心文档
+### 🤖 AI 对话
+多模型支持 • 流式响应 • MCP 工具调用 • RAG 集成
 
-| 文档 | 说明 | 链接 |
-|------|------|------|
-| 📖 项目介绍 | 功能概述、快速开始 | [README.md](README.md) |
-| 📦 安装指南 | 环境配置、依赖安装 | [INSTALL.md](INSTALL.md) |
-| 📝 更新日志 | 版本历史、变更记录 | [CHANGELOG.md](开发日志/CHANGELOG.md) |
-| 🔧 开发日志 | 开发经历、问题解决 | [DEV_LOG.md](开发日志/DEV_LOG.md) |
-| 🐳 Docker 部署 | 容器化部署指南 | [DOCKER.md](docs/DOCKER.md) |
+</td>
+<td width="50%" valign="top">
 
-### 模块文档
+### 📚 知识库
+向量检索 • BM25 • 重排序 • 多格式支持
 
-| 模块 | 说明 | 链接 |
-|------|------|------|
-| 🤖 AI 对话 | LLM 客户端、MCP 工具 | [mechforge_ai/](mechforge_ai/) |
-| 📚 知识库 | RAG 引擎、向量检索 | [mechforge_knowledge/](mechforge_knowledge/) |
-| ⚙️ CAE 工作台 | 网格划分、FEA 求解 | [mechforge_work/](mechforge_work/) |
-| 🌐 Web 服务 | FastAPI、WebSocket | [mechforge_web/](mechforge_web/) |
-| 🖥️ GUI 应用 | PyWebView 桌面界面 | [gui_pywebview/](gui_pywebview/) |
-| 🎨 主题组件 | UI 组件、样式 | [mechforge_theme/](mechforge_theme/) |
-| 🔧 核心模块 | 配置、日志、缓存 | [mechforge_core/](mechforge_core/) |
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-### AI 助手配置
+### ⚙️ CAE 工作台
+Gmsh 网格 • CalculiX 求解 • PyVista 可视化
 
-| 文档 | 说明 | 链接 |
-|------|------|------|
-| 🤖 Qwen 配置 | 项目上下文、开发规范 | [QWEN.md](QWEN.md) |
-| 🤖 Claude 配置 | 项目上下文 | [CLAUDE.md](CLAUDE.md) |
-| 🔌 MCP 配置 | 工具调用协议 | [mcp_config.json](mcp_config.json) |
+</td>
+<td width="50%" valign="top">
 
-### 开发报告
+### 🖥️ 多端支持
+CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 
-| 文档 | 说明 | 链接 |
-|------|------|------|
-| 📊 GUI 实现总结 | PyWebView 开发经历 | [GUI_AI_实现总结.md](开发日志/2026-03-08_GUI_AI_实现总结.md) |
-| 📊 GUI 完成报告 | 功能实现报告 | [GUI_AI_完成报告.md](docs/GUI_AI_完成报告.md) |
-| 📊 功能检查报告 | 项目功能验证 | [项目功能检查报告.md](docs/项目功能检查报告.md) |
+</td>
+</tr>
+</table>
+
+---
+
+## 🛠️ 技术栈
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/Pydantic-2.0+-E92063?style=flat-square&logo=pydantic&logoColor=white" alt="Pydantic"/>
+  <img src="https://img.shields.io/badge/ChromaDB-0.4+-FF6B6B?style=flat-square" alt="ChromaDB"/>
+  <img src="https://img.shields.io/badge/Gmsh-4.15+-4A90D9?style=flat-square" alt="Gmsh"/>
+  <img src="https://img.shields.io/badge/PyVista-0.44+-2E86AB?style=flat-square" alt="PyVista"/>
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/>
+</p>
 
 ---
 
@@ -80,19 +94,6 @@
 
 **启动命令**: `mechforge` 或 `mechforge-gui`
 
-**功能特性**:
-- 🤖 多模型支持: OpenAI, Anthropic, Ollama, GGUF
-- 💬 流式响应，实时打字机效果
-- 🔧 MCP 工具调用，内置工程计算
-- 📚 RAG 知识库检索集成
-
-**相关文档**:
-- [AI 模块文档](mechforge_ai/)
-- [模型管理 CLI](mechforge_ai/model_cli.py)
-
-**开发经历**:
-- [2026-03-04 RAG 引擎优化](开发日志/DEV_LOG.md#2026年3月4日)
-
 ---
 
 ### 2. 知识库模式
@@ -102,19 +103,6 @@
 </p>
 
 **启动命令**: `mechforge-k`
-
-**功能特性**:
-- 📚 RAG 引擎: 向量检索 + BM25 + 重排序
-- 📄 多格式支持: Markdown, PDF, TXT, Word
-- 🔍 原文呈现，杜绝 AI 幻觉
-- 🏷️ 智能切分，自动文档分块
-
-**相关文档**:
-- [知识库模块文档](mechforge_knowledge/)
-- [RAGFlow 集成指南](#-ragflow-集成指南)
-
-**开发经历**:
-- [知识库后端架构设计](开发日志/DEV_LOG.md)
 
 ---
 
@@ -126,29 +114,6 @@
 
 **启动命令**: `mechforge-work`
 
-**功能特性**:
-- 🔧 几何处理: STEP, IGES, STL, BREP 导入
-- 📐 网格划分: Gmsh 4.15+ 集成
-- ⚙️ FEA 求解: CalculiX 本地求解
-- 📊 可视化: PyVista 3D 云图
-
-**交互命令**:
-```
-/demo      - 运行悬臂梁示例
-/load      - 加载几何文件
-/mesh      - 生成网格
-/solve     - 执行求解
-/show      - 可视化结果
-/export    - 导出结果
-```
-
-**相关文档**:
-- [CAE 模块文档](mechforge_work/)
-- [Gmsh 网格引擎](mechforge_work/mesh_engine.py)
-
-**开发经历**:
-- [CAE 工作台实现](开发日志/DEV_LOG.md)
-
 ---
 
 ### 4. Web 界面
@@ -159,21 +124,6 @@
 
 **启动命令**: `mechforge-web`
 
-**功能特性**:
-- 🌐 FastAPI 高性能异步后端
-- 🔌 WebSocket 实时双向通信
-- 🔒 安全中间件: 速率限制、IP 过滤
-- 📱 响应式设计
-
-**访问地址**: http://localhost:8080
-
-**相关文档**:
-- [Web 模块文档](mechforge_web/)
-- [API 文档](mechforge_web/api.py)
-
-**开发经历**:
-- [Web 服务开发](开发日志/DEV_LOG.md)
-
 ---
 
 ### 5. GUI 桌面应用
@@ -183,29 +133,6 @@
 </p>
 
 **启动命令**: `mechforge-gui`
-
-**功能特性**:
-- 🎨 科幻控制台风格主题
-- 🌌 深空蓝背景 + 霓虹青强调色
-- ✨ Modern Dark Glassmorphism 设计
-- 🤖 AI 对话、知识库、CAE 工作台、经验库集成
-- 📦 单文件打包 (~71MB)
-
-**界面模块**:
-| 模块 | 功能 |
-|------|------|
-| AI 助手 | 多模型对话、流式响应、MCP 工具调用 |
-| 知识库 | RAG 检索、书籍轮播、分类标签 |
-| CAE 工作台 | 模型加载、网格划分、求解可视化 |
-| 经验库 | 故障案例、Daily Feed 知识推送 |
-| 设置 | API 配置、主题切换、知识库路径 |
-
-**相关文档**:
-- [GUI 模块文档](gui_pywebview/)
-- [主题设计](gui_pywebview/css/industrial-theme.css)
-
-**开发经历**:
-- [2026-03-08 GUI AI 实现总结](开发日志/2026-03-08_GUI_AI_实现总结.md)
 
 ---
 
@@ -237,6 +164,31 @@ pip install -e ".[all]"
 | `mechforge-web` | Web 服务 | 浏览器访问 |
 | `mechforge-model` | 模型管理 | Ollama/GGUF |
 
+👉 **详细安装指南**: [INSTALL.md](INSTALL.md)
+
+---
+
+## 📚 文档中心
+
+| 文档 | 说明 |
+|------|------|
+| [README.md](README.md) | 项目介绍 |
+| [INSTALL.md](INSTALL.md) | 安装指南 |
+| [CHANGELOG.md](开发日志/CHANGELOG.md) | 更新日志 |
+| [DEV_LOG.md](开发日志/DEV_LOG.md) | 开发日志 |
+| [DOCKER.md](docs/DOCKER.md) | Docker 部署 |
+
+### 模块文档
+
+| 模块 | 说明 |
+|------|------|
+| [mechforge_ai/](mechforge_ai/) | AI 对话模块 |
+| [mechforge_knowledge/](mechforge_knowledge/) | 知识库模块 |
+| [mechforge_work/](mechforge_work/) | CAE 工作台模块 |
+| [mechforge_web/](mechforge_web/) | Web 服务模块 |
+| [gui_pywebview/](gui_pywebview/) | GUI 桌面应用 |
+| [mechforge_core/](mechforge_core/) | 核心模块 |
+
 ---
 
 ## 📦 Docker 部署
@@ -252,7 +204,6 @@ docker-compose --profile work up -d   # CAE 工作台
 docker-compose --profile web up -d    # Web 服务
 ```
 
-**镜像变体**:
 | 镜像 | 大小 | 描述 |
 |------|------|------|
 | `ghcr.io/yd5768365-hue/mechforge:latest` | ~800MB | 完整版 |
@@ -277,9 +228,82 @@ mechforge_ai/
 ├── docs/                    # 文档
 ├── 开发日志/                # 开发日志
 ├── tests/                   # 测试
-├── examples/                # 示例
-└── scripts/                 # 脚本
+└── examples/                # 示例
 ```
+
+---
+
+## 🤝 贡献指南
+
+欢迎参与 MechForge AI 的开发！
+
+### 如何贡献
+
+1. **Fork 项目** - 点击右上角 Fork 按钮
+2. **克隆仓库** - `git clone https://github.com/你的用户名/mechforge.git`
+3. **创建分支** - `git checkout -b feature/你的功能名`
+4. **提交更改** - `git commit -m "feat: 添加某某功能"`
+5. **推送分支** - `git push origin feature/你的功能名`
+6. **创建 PR** - 在 GitHub 上创建 Pull Request
+
+### 开发规范
+
+- **代码风格**: 使用 Black 格式化，Ruff 检查
+- **类型注解**: 使用 MyPy 类型检查
+- **提交信息**: 遵循 [Conventional Commits](https://www.conventionalcommits.org/)
+
+```bash
+# 运行测试
+pytest tests/
+
+# 代码检查
+ruff check .
+black --check .
+mypy mechforge_*/
+```
+
+---
+
+## ❓ 常见问题
+
+<details>
+<summary><b>Q: 如何切换 AI 模型？</b></summary>
+
+在 GUI 设置中选择提供商和模型，或编辑 `config.yaml`:
+
+```yaml
+provider:
+  default: "ollama"
+  ollama:
+    model: "qwen2.5:3b"
+```
+
+</details>
+
+<details>
+<summary><b>Q: Ollama 连接失败怎么办？</b></summary>
+
+1. 确认 Ollama 已安装: `ollama --version`
+2. 启动服务: `ollama serve`
+3. 下载模型: `ollama pull qwen2.5:3b`
+
+</details>
+
+<details>
+<summary><b>Q: 如何添加知识库文件？</b></summary>
+
+将 Markdown (.md)、PDF (.pdf)、TXT (.txt) 文件放入 `knowledge/` 目录，程序会自动加载。
+
+</details>
+
+<details>
+<summary><b>Q: CAE 功能不可用？</b></summary>
+
+安装 CAE 依赖: `pip install mechforge-ai[work]`
+
+确保已安装 Gmsh 和 CalculiX。
+
+</details>
 
 ---
 
@@ -305,8 +329,13 @@ mechforge_ai/
 
 - **GitHub**: https://github.com/yd5768365-hue/mechforge
 - **Issues**: [报告问题](https://github.com/yd5768365-hue/mechforge/issues)
+- **Discussions**: [参与讨论](https://github.com/yd5768365-hue/mechforge/discussions)
 
 ---
+
+<p align="center">
+  <strong>如果这个项目对你有帮助，请给一个 ⭐ Star 支持一下！</strong>
+</p>
 
 <p align="center">
   Made with ❤️ for Mechanical Engineers
