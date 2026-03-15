@@ -179,13 +179,7 @@
 ### 5. GUI 桌面应用
 
 <p align="center">
-  <video src="docs/images/gui.mp4" controls="controls" width="600" style="max-width: 100%;">
-    您的浏览器不支持视频播放
-  </video>
-</p>
-
-<p align="center">
-  <a href="docs/images/gui.mp4">📥 下载视频</a>
+  <img src="docs/images/gui.gif" alt="GUI 演示" width="600"/>
 </p>
 
 **启动命令**: `mechforge-gui`
