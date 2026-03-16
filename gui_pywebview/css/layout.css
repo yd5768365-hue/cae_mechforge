@@ -421,3 +421,28 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+/* 状态栏文档链接 */
+.status-bar-docs {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-bar-docs a {
+  color: var(--text-dim, #889);
+  text-decoration: none;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.status-bar-docs a:hover {
+  color: var(--accent-primary, #00e5ff);
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+}
