@@ -838,7 +838,10 @@
 
     const tags = knowledgeTags.querySelectorAll('.knowledge-tag');
     tags.forEach(tag => {
-      tag.addEventListener('click', () => {
+      tag.addEventListener('click', (e) => {
+        // 阻止事件冒泡，避免触发书籍详情抽屉
+        e.stopPropagation();
+
         // 如果点击的是已选中的标签，不执行任何操作
         if (tag.classList.contains('active')) return;
 
@@ -1198,7 +1201,9 @@
 
   function initBookListEvents() {
     searchResults.querySelectorAll('.book-list-item:not(.vector-result)').forEach(item => {
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        // 阻止事件冒泡
+        e.stopPropagation();
         const idx = parseInt(item.dataset.index);
         if (currentResults[idx]) openBookDrawer(currentResults[idx]);
       });
