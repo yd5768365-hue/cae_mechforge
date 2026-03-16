@@ -92,7 +92,13 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
   <img src="docs/images/ai_chat.png" alt="AI 对话模式" width="600"/>
 </p>
 
-**启动命令**: `mechforge` 或 `mechforge-gui`
+**启动命令**: `mechforge`
+
+**相关文档**:
+- [📖 使用指南](docs/USAGE.md) - AI 对话命令详解
+- [⚙️ 配置](docs/CONFIG.md) - AI Provider 配置
+- [🏗️ 架构](docs/ARCHITECTURE.md) - LLM 客户端架构
+- [📄 开发日志](docs/GUI_AI_实现完成总结.md) - AI 对话实现历程
 
 ---
 
@@ -104,6 +110,12 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 
 **启动命令**: `mechforge-k`
 
+**相关文档**:
+- [📖 使用指南](docs/USAGE.md) - 知识库检索命令
+- [⚙️ 配置](docs/CONFIG.md) - RAG 和知识库配置
+- [🏗️ 架构](docs/ARCHITECTURE.md) - RAG 引擎架构
+- [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md) - 模型缓存优化
+
 ---
 
 ### 3. CAE 工作台
@@ -113,6 +125,12 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 </p>
 
 **启动命令**: `mechforge-work`
+
+**相关文档**:
+- [📖 使用指南](docs/USAGE.md) - CAE 工作台操作
+- [⚙️ 配置](docs/CONFIG.md) - CAE 求解器配置
+- [🏗️ 架构](docs/ARCHITECTURE.md) - CAE 引擎架构
+- [📄 关于](docs/ABOUT.md) - CAE 模块介绍
 
 ---
 
@@ -125,7 +143,10 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 **启动命令**: `mechforge-web`
 
 **相关文档**:
-- [📖 使用指南](docs/USAGE.md) | [⚙️ 配置](docs/CONFIG.md) | [🏗️ 架构](docs/ARCHITECTURE.md) | [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md)
+- [📖 使用指南](docs/USAGE.md) - Web 服务启动和使用
+- [⚙️ 配置](docs/CONFIG.md) - Web 服务配置
+- [🏗️ 架构](docs/ARCHITECTURE.md) - FastAPI 架构设计
+- [📄 API 文档](docs/API.md) - Web API 接口说明
 
 ---
 
@@ -138,7 +159,11 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 **启动命令**: `mechforge-gui`
 
 **相关文档**:
-- [📖 使用指南](docs/USAGE.md) | [⚙️ 配置](docs/CONFIG.md) | [🏗️ 架构](docs/ARCHITECTURE.md) | [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md)
+- [📖 使用指南](docs/USAGE.md) - GUI 桌面应用使用
+- [⚙️ 配置](docs/CONFIG.md) - GUI 配置选项
+- [🏗️ 架构](docs/ARCHITECTURE.md) - PyWebView 架构
+- [📄 实现总结](docs/GUI_AI_实现完成总结.md) - GUI 开发历程
+- [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md) - 性能优化记录
 
 ---
 
