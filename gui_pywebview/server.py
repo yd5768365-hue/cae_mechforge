@@ -90,12 +90,13 @@ app.add_middleware(
 
 # ── 注册 API 路由 ─────────────────────────────────────────────────────────────
 
-from api import chat_router, config_router, gguf_router, health_router, obsidian_router, rag_router, ragflow_router
+from api import chat_router, config_router, gguf_router, health_router, knowledge_router, obsidian_router, rag_router, ragflow_router
 from api.errors import setup_error_handlers
 
 app.include_router(health_router)
 app.include_router(chat_router)
 app.include_router(rag_router)
+app.include_router(knowledge_router)
 app.include_router(config_router)
 app.include_router(gguf_router)
 app.include_router(ragflow_router)
