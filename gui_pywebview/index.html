@@ -320,6 +320,12 @@
             <div class="book-carousel-header">
               <h3>推荐书籍</h3>
               <div class="carousel-nav">
+                <button class="add-book-btn" onclick="openAddBookModal()" title="添加书籍到知识库">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  添加书籍
+                </button>
                 <button class="carousel-nav-btn" id="carousel-prev" title="上一页">‹</button>
                 <button class="carousel-nav-btn" id="carousel-next" title="下一页">›</button>
               </div>
@@ -720,6 +726,18 @@
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-name">RAGFlow 向导</div>
+                    <div class="setting-desc">配置 RAGFlow 云端知识库（支持 OCR、表格解析）</div>
+                  </div>
+                  <button class="setting-btn primary" id="btn-ragflow-wizard" onclick="openRagflowWizard()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    启动向导
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -840,6 +858,213 @@
   <script src="app/settings/settings-panel.js"></script>
 
   <!-- Experience Library -->
+  <!-- 添加书籍弹窗逻辑 -->
+  <script>
+    let selectedFile = null;
+    let selectedTags = [];
+    let selectedBackend = 'local';
+
+    function openAddBookModal() {
+      const modal = document.getElementById('addBookModal');
+      if (modal) modal.classList.add('active');
+    }
+    function closeAddBookModal() {
+      const modal = document.getElementById('addBookModal');
+      if (modal) modal.classList.remove('active');
+      resetModal();
+    }
+    function closeModalOutside(e) {
+      if (e.target.id === 'addBookModal') closeAddBookModal();
+    }
+
+    function selectBackend(btn) {
+      document.querySelectorAll('.backend-option').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedBackend = btn.dataset.backend;
+      const hint = document.getElementById('backend-hint');
+      if (hint) {
+        hint.textContent = selectedBackend === 'ragflow'
+          ? '使用 RAGFlow 云端解析，支持 OCR、表格、公式识别（需配置 RAGFlow）'
+          : '使用本地 ChromaDB 向量数据库，无需外部服务';
+      }
+    }
+
+    function resetModal() {
+      selectedFile = null;
+      selectedTags = [];
+      selectedBackend = 'local';
+      // 重置后端选择器
+      document.querySelectorAll('.backend-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.backend === 'local');
+      });
+      const hint = document.getElementById('backend-hint');
+      if (hint) hint.textContent = '使用本地 ChromaDB 向量数据库，无需外部服务';
+      const titleEl = document.getElementById('bookTitle');
+      if (titleEl) titleEl.value = '';
+      const authorEl = document.getElementById('bookAuthor');
+      if (authorEl) authorEl.value = '';
+      const editionEl = document.getElementById('bookEdition');
+      if (editionEl) editionEl.value = '';
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput) fileInput.value = '';
+      const selectedFileName = document.getElementById('selectedFileName');
+      if (selectedFileName) selectedFileName.style.display = 'none';
+      const progressSection = document.getElementById('progressSection');
+      if (progressSection) progressSection.style.display = 'none';
+      const progressFill = document.getElementById('progressFill');
+      if (progressFill) progressFill.style.width = '0%';
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (confirmBtn) confirmBtn.disabled = false;
+      document.querySelectorAll('.tag-option.selected').forEach(el => el.classList.remove('selected'));
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) setSelectedFile(file);
+    }
+    function handleDrop(event) {
+      event.preventDefault();
+      const uploadZone = document.getElementById('uploadZone');
+      if (uploadZone) uploadZone.classList.remove('dragover');
+      const file = event.dataTransfer.files[0];
+      if (file) setSelectedFile(file);
+    }
+    function handleDragOver(event) {
+      event.preventDefault();
+      const uploadZone = document.getElementById('uploadZone');
+      if (uploadZone) uploadZone.classList.add('dragover');
+    }
+    function handleDragLeave() {
+      const uploadZone = document.getElementById('uploadZone');
+      if (uploadZone) uploadZone.classList.remove('dragover');
+    }
+    function setSelectedFile(file) {
+      selectedFile = file;
+      const el = document.getElementById('selectedFileName');
+      if (el) {
+        el.textContent = '📎 ' + file.name + ' (' + (file.size/1024/1024).toFixed(2) + ' MB)';
+        el.style.display = 'block';
+      }
+      const titleEl = document.getElementById('bookTitle');
+      if (!titleEl.value) {
+        titleEl.value = file.name.replace(/\.[^.]+$/, '');
+      }
+    }
+
+    function toggleTag(el) {
+      el.classList.toggle('selected');
+      selectedTags = Array.from(document.querySelectorAll('.tag-option.selected')).map(e => e.dataset.tag);
+    }
+
+    async function submitBook() {
+      const title = document.getElementById('bookTitle').value.trim();
+      if (!title) {
+        const titleEl = document.getElementById('bookTitle');
+        titleEl.style.borderColor = '#ff4d6d';
+        setTimeout(() => titleEl.style.borderColor = '', 2000);
+        return;
+      }
+      if (!selectedFile) {
+        alert('请先选择书籍文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('title', title);
+      formData.append('author', document.getElementById('bookAuthor').value.trim());
+      formData.append('edition', document.getElementById('bookEdition').value.trim());
+      formData.append('tags', JSON.stringify(selectedTags));
+      formData.append('backend', selectedBackend);
+
+      document.getElementById('progressSection').style.display = 'block';
+      document.getElementById('confirmBtn').disabled = true;
+      setProgress(10, '上传文件中...');
+
+      try {
+        const response = await fetch('/api/rag/add_book', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          if (result.doc_id && selectedBackend === 'ragflow') {
+            // RAGFlow 模式：异步解析，开始轮询
+            setProgress(60, 'RAGFlow 解析中...');
+            await pollParseStatus(result.doc_id);
+          } else {
+            // Embedded 模式：同步完成
+            setProgress(100, '入库完成！');
+            setTimeout(() => {
+              closeAddBookModal();
+              if (typeof loadBooks === 'function') loadBooks();
+            }, 800);
+          }
+        } else {
+          throw new Error(result.message || '添加失败');
+        }
+      } catch (err) {
+        document.getElementById('progressText').textContent = '❌ 错误：' + err.message;
+        document.getElementById('confirmBtn').disabled = false;
+      }
+    }
+
+    async function pollParseStatus(docId) {
+      const maxAttempts = 60; // 最多等 5 分钟
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise(r => setTimeout(r, 5000)); // 每 5 秒查一次
+        try {
+          const res = await fetch('/api/rag/parse_status/' + docId);
+          const data = await res.json();
+
+          const pct = Math.min(60 + Math.floor(i / maxAttempts * 35), 95);
+          setProgress(pct, 'RAGFlow 解析中... (' + (data.status || 'UNKNOWN') + ')');
+
+          if (data.done) {
+            setProgress(100, '解析完成，已入库 ✓');
+            setTimeout(() => {
+              closeAddBookModal();
+              if (typeof loadBooks === 'function') loadBooks();
+            }, 1000);
+            return;
+          }
+          if (data.status === 'FAIL') {
+            document.getElementById('progressText').textContent = '❌ RAGFlow 解析失败';
+            document.getElementById('confirmBtn').disabled = false;
+            return;
+          }
+        } catch (e) {
+          console.error('轮询解析状态失败:', e);
+        }
+      }
+      document.getElementById('progressText').textContent = '⚠️ 解析超时，可在 RAGFlow 控制台查看';
+      document.getElementById('confirmBtn').disabled = false;
+    }
+
+    function setProgress(pct, text) {
+      const progressFill = document.getElementById('progressFill');
+      if (progressFill) progressFill.style.width = pct + '%';
+      const progressText = document.getElementById('progressText');
+      if (progressText) progressText.textContent = text;
+      const progressPct = document.getElementById('progressPct');
+      if (progressPct) progressPct.textContent = pct + '%';
+    }
+
+    // 打开 RAGFlow 向导
+    async function openRagflowWizard() {
+      // 构建完整的向导 URL
+      const wizardUrl = window.location.origin + '/ragflow_wizard.html';
+      if (window.pywebview && window.pywebview.api) {
+        await window.pywebview.api.open_wizard(wizardUrl);
+      } else {
+        // 开发模式下直接打开新窗口
+        window.open(wizardUrl, '_blank', 'width=720,height=720');
+      }
+    }
+  </script>
+
   <script src="experience.js"></script>
 
   <!-- Daily Feed -->
@@ -847,5 +1072,104 @@
 
   <!-- Main Application Entry -->
   <script src="app/main.js"></script>
+
+  <!-- 添加书籍弹窗 -->
+  <div id="addBookModal" class="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-container">
+      <!-- 顶部标题栏 -->
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span>添加书籍到知识库</span>
+        </div>
+        <button class="modal-close" onclick="closeAddBookModal()">✕</button>
+      </div>
+
+      <!-- 文件拖拽区域 -->
+      <div class="upload-zone" id="uploadZone"
+           ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+           onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept=".pdf,.txt,.md" style="display:none" onchange="handleFileSelect(event)">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">拖拽文件到此处，或点击选择</div>
+        <div class="upload-hint">支持 PDF、TXT、MD 格式</div>
+        <div id="selectedFileName" class="selected-file" style="display:none"></div>
+      </div>
+
+      <!-- 书籍信息表单 -->
+      <div class="form-grid">
+        <!-- 后端选择器 -->
+        <div class="form-group full-width">
+          <label class="form-label">导入方式</label>
+          <div class="backend-selector">
+            <button class="backend-option selected" data-backend="local" onclick="selectBackend(this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              本地 ChromaDB
+            </button>
+            <button class="backend-option" data-backend="ragflow" onclick="selectBackend(this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              RAGFlow 云端
+            </button>
+          </div>
+          <div class="backend-hint" id="backend-hint">使用本地 ChromaDB 向量数据库，无需外部服务</div>
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">书籍标题 <span class="required">*</span></label>
+          <input type="text" id="bookTitle" class="form-input" placeholder="例：机械设计手册">
+        </div>
+        <div class="form-group">
+          <label class="form-label">作者</label>
+          <input type="text" id="bookAuthor" class="form-input" placeholder="例：闻邦椿">
+        </div>
+        <div class="form-group">
+          <label class="form-label">版本</label>
+          <input type="text" id="bookEdition" class="form-input" placeholder="例：第6版">
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">分类</label>
+          <div class="tag-selector" id="tagSelector">
+            <button class="tag-option" data-tag="力学" onclick="toggleTag(this)">力学</button>
+            <button class="tag-option" data-tag="材料" onclick="toggleTag(this)">材料</button>
+            <button class="tag-option" data-tag="设计" onclick="toggleTag(this)">设计</button>
+            <button class="tag-option" data-tag="制造" onclick="toggleTag(this)">制造</button>
+            <button class="tag-option" data-tag="热力学" onclick="toggleTag(this)">热力学</button>
+            <button class="tag-option" data-tag="控制" onclick="toggleTag(this)">控制</button>
+            <button class="tag-option" data-tag="有限元" onclick="toggleTag(this)">有限元</button>
+            <button class="tag-option" data-tag="流体" onclick="toggleTag(this)">流体</button>
+            <button class="tag-option" data-tag="摩擦学" onclick="toggleTag(this)">摩擦学</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 进度条（上传/入库时显示） -->
+      <div id="progressSection" style="display:none">
+        <div class="progress-label">
+          <span id="progressText">正在处理...</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- 底部按钮 -->
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeAddBookModal()">取消</button>
+        <button class="btn-confirm" id="confirmBtn" onclick="submitBook()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          加入知识库
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

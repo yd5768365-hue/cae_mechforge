@@ -8,6 +8,7 @@ from .config import router as config_router
 from .gguf import router as gguf_router
 from .health import router as health_router
 from .rag import router as rag_router
+from .ragflow_installer import router as ragflow_router
 
 try:
     from .cae import router as cae_router
@@ -17,6 +18,7 @@ except Exception:
 __all__ = [
     "chat_router",
     "rag_router",
+    "ragflow_router",
     "config_router",
     "gguf_router",
     "health_router",

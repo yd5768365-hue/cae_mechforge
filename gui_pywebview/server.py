@@ -90,7 +90,7 @@ app.add_middleware(
 
 # ── 注册 API 路由 ─────────────────────────────────────────────────────────────
 
-from api import chat_router, config_router, gguf_router, health_router, rag_router
+from api import chat_router, config_router, gguf_router, health_router, rag_router, ragflow_router
 from api.errors import setup_error_handlers
 
 app.include_router(health_router)
@@ -98,6 +98,7 @@ app.include_router(chat_router)
 app.include_router(rag_router)
 app.include_router(config_router)
 app.include_router(gguf_router)
+app.include_router(ragflow_router)
 
 try:
     from api import cae_router
@@ -236,6 +237,20 @@ async def serve_daily_feed_js() -> FileResponse | HTMLResponse:
     if js_file.exists():
         return FileResponse(str(js_file), media_type="application/javascript")
     return HTMLResponse("daily_feed_ui.js not found", status_code=404)
+
+
+@app.get("/{wizard_page}.html", tags=["静态"], response_model=None)
+async def serve_wizard(wizard_page: str) -> FileResponse | HTMLResponse:
+    """提供向导页面（如 ragflow_wizard.html）"""
+    # 只允许特定的向导页面
+    allowed_wizards = ["ragflow_wizard"]
+    if wizard_page not in allowed_wizards:
+        return HTMLResponse("Page not found", status_code=404)
+
+    wizard_file = GUI_DIR / f"{wizard_page}.html"
+    if wizard_file.exists():
+        return FileResponse(str(wizard_file), media_type="text/html")
+    return HTMLResponse(f"{wizard_page}.html not found", status_code=404)
 
 
 # ── 静态目录挂载 ──────────────────────────────────────────────────────────────

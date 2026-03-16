@@ -400,6 +400,41 @@ class WindowAPI:
         """设置配置值"""
         self._config.set(key, value)
 
+    # ── 向导 ─────────────────────────────────────────────────────────────────
+
+    def open_wizard(self, page: str) -> None:
+        import webview
+
+        if self._window:
+            # 在新窗口中打开向导
+            wizard_window = webview.create_window(
+                "RAGFlow 安装向导",
+                url=page,
+                width=720,
+                height=720,
+                resizable=False,
+            )
+            wizard_window.events.closed += lambda: None
+            webview.windows.append(wizard_window)
+
+    def close_wizard(self) -> None:
+        """关闭向导并刷新主窗口"""
+        import webview
+
+        # 关闭除了主窗口外的所有窗口
+        for window in webview.windows[:]:
+            if window != self._window:
+                window.destroy()
+        # 刷新主窗口
+        if self._window:
+            self._window.evaluate_js('location.reload()')
+
+    def open_url(self, url: str) -> None:
+        """打开外部 URL"""
+        import webbrowser
+
+        webbrowser.open(url)
+
     # ── 文件对话框 ────────────────────────────────────────────────────────────
 
     def select_gguf_file(self) -> str | None:
