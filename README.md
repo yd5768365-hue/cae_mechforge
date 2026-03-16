@@ -124,6 +124,9 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 
 **启动命令**: `mechforge-web`
 
+**相关文档**:
+- [📖 使用指南](docs/USAGE.md) | [⚙️ 配置](docs/CONFIG.md) | [🏗️ 架构](docs/ARCHITECTURE.md) | [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md)
+
 ---
 
 ### 5. GUI 桌面应用
@@ -133,6 +136,9 @@ CLI 终端 • GUI 桌面 • Web 浏览器 • Docker
 </p>
 
 **启动命令**: `mechforge-gui`
+
+**相关文档**:
+- [📖 使用指南](docs/USAGE.md) | [⚙️ 配置](docs/CONFIG.md) | [🏗️ 架构](docs/ARCHITECTURE.md) | [📄 优化日志](docs/OPTIMIZATION_2026-03-16.md)
 
 ---
 
